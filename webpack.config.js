@@ -25,8 +25,8 @@ module.exports = {
             presets: ['@babel/preset-env'],
             plugins: [
               require('@babel/plugin-transform-runtime'),
-              require('babel-plugin-transform-object-rest-spread'),
-          ]
+              require('@babel/plugin-proposal-object-rest-spread'),
+            ]
           }
         }
       }
