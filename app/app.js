@@ -6,6 +6,8 @@ import {
   MeshBasicMaterial,
   Mesh,
 } from 'three'
+import TWEEN from '@tweenjs/tween.js'
+
 const canvas = document.getElementById('c')
 const scene = new Scene()
 const cam = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
@@ -28,11 +30,32 @@ scene.add(cube)
 
 cam.position.z = 5
 
+const state = {
+  rotation: {
+    x: 0,
+    y: 0,
+  }
+}
+
+const endState = {
+  rotation: {
+    x: 6 * Math.PI,
+    y: 6 * Math.PI,
+  }
+}
+
+const tween = new TWEEN.Tween(state)
+  .to(endState, 10000)
+  .easing(TWEEN.Easing.Quadratic.Out)
+  .onUpdate(() => {
+    cube = {...cube, ...state}
+  })
+  .start()
+
 const loop = (time) => {
   requestAnimationFrame(loop)
   renderer.render(scene, cam)
-  cube.rotation.y += .01
-  cube.rotation.z += .01
+  tween.update(time)
 }
 
 loop()
