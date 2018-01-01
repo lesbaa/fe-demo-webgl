@@ -15,7 +15,7 @@ module.exports = {
     new CopyWebpackPlugin([
       {
         from: './app/assets',
-        to: './app/assets'
+        to: 'assets'
       },
     ]),
   ],

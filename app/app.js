@@ -21,6 +21,7 @@ const canvas = document.getElementById('c')
 const scene = new Scene()
 const cam = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 const textureLoader = new TextureLoader()
+
 const envMap = textureLoader.load('assets/texture.png')
 envMap.mapping = SphericalReflectionMapping
 
@@ -30,7 +31,7 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
 
-const sphereGeom = new SphereGeometry(20, 10, 10)
+const sphereGeom = new SphereGeometry(10, 20, 20)
 
 const gridHelper = new GridHelper( 1000, 10 )
 gridHelper.position.y = - 120
