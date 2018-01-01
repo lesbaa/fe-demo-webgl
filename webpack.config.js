@@ -1,14 +1,22 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
 module.exports = {
   entry: './app/app.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'app.bundle.js'
   },
-  plugins: [new HtmlWebpackPlugin({
-    template: './app/template.html'
-  })],
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './app/template.html'
+    }),
+    new CopyWebpackPlugin({
+      from: 'assets',
+      to: 'assets'
+    }),
+  ],
   devtool: 'inline-source-map',
     devServer: {
     contentBase: './dist',
