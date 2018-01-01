@@ -12,10 +12,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './app/template.html'
     }),
-    new CopyWebpackPlugin({
-      from: 'assets',
-      to: 'assets'
-    }),
+    new CopyWebpackPlugin([
+      {
+        from: './app/assets',
+        to: './app/assets'
+      },
+    ]),
   ],
   devtool: 'inline-source-map',
     devServer: {
