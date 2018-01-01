@@ -24,6 +24,7 @@
   "dependencies": {
     "@babel/core": "^7.0.0-beta.36",
     "@babel/preset-env": "^7.0.0-beta.36",
+    "@tweenjs/tween.js": "^17.1.1",
     "three": "^0.89.0"
   }
 }
