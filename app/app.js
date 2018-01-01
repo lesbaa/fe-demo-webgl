@@ -21,7 +21,7 @@ const canvas = document.getElementById('c')
 const scene = new Scene()
 const cam = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 const textureLoader = new TextureLoader()
-const envMap = textureLoader.load('dist/assets/texture.png')
+const envMap = textureLoader.load('assets/texture.png')
 envMap.mapping = SphericalReflectionMapping
 
 const renderer = new WebGLRenderer({
