@@ -23,7 +23,10 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: ['@babel/preset-env'],
-            plugins: ['@babel/transform-runtime']
+            plugins: [
+              require('@babel/plugin-transform-runtime'),
+              require('babel-plugin-transform-object-rest-spread'),
+          ]
           }
         }
       }
