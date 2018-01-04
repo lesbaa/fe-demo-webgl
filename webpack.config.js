@@ -17,6 +17,10 @@ module.exports = {
         from: './app/assets',
         to: 'assets'
       },
+      {
+        test: /\.glsl$/,
+        loader: 'webpack-glsl'
+      }
     ]),
   ],
   devtool: 'inline-source-map',

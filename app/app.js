@@ -42,6 +42,7 @@ const materials = [
       color: 0x00ff00,
       wireframe: true,
       side: DoubleSide,
+      
     }),
     new MeshBasicMaterial({
       color: 0x00ddee,
