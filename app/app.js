@@ -17,6 +17,8 @@ import {
 } from 'three'
 import TWEEN from '@tweenjs/tween.js'
 
+// https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing.html
+
 const canvas = document.getElementById('c')
 const scene = new Scene()
 const cam = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
