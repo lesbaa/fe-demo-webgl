@@ -3,19 +3,23 @@ import {
   PerspectiveCamera,
   WebGLRenderer,
   BoxGeometry,
-  MeshBasicMaterial,
   Mesh,
   AmbientLight,
   AdditiveBlending,
   GridHelper,
-  MeshLambertMaterial,
   SpotLight,
   SphereGeometry,
   TextureLoader,
   SphericalReflectionMapping,
   DoubleSide,
+  MeshNormalMaterial,
+  PlaneGeometry,
 } from 'three'
-import TWEEN from '@tweenjs/tween.js'
+
+import {
+  World,
+  Vec3,
+} from 'cannon'
 
 // https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing.html
 
@@ -33,74 +37,40 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
 
-const sphereGeom = new SphereGeometry(10, 20, 20)
-
-const gridHelper = new GridHelper( 1000, 10 )
-gridHelper.position.y = - 120
-scene.add( gridHelper )
-
-const materials = [
-    new MeshBasicMaterial({
-      color: 0x00ff00,
-      wireframe: true,
-      side: DoubleSide,
-      
-    }),
-    new MeshBasicMaterial({
-      color: 0x00ddee,
-      blending: AdditiveBlending,
-      opacity: 0.5,
-    }),
-    new MeshLambertMaterial({
-      color: 0x00ddee,
-    })
-
-]
-
-const light = new AmbientLight({ color: 0x202020 })
-const spot = new SpotLight(0x00aadd)
-spot.position.set(100,100,100)
-
-scene.add(spot)
-
-const spheres = materials.map((material, i) => {
-  const sphere = new Mesh(
-    sphereGeom,
-    material,
-  )
-  const unit = 30
-  sphere.position.x = (unit * i) - ((materials.length / 2) * unit)
-  sphere.rotation.x = 0.2 * i
-  sphere.rotation.y = 0.2 * i
-  return sphere
+const world = new World({
+  gravity: new Vec3(0, 0, -9.82)
 })
 
-spheres.forEach(sphere => {
-  scene.add(sphere)
+const normalMaterial = new MeshNormalMaterial({
+  side: DoubleSide,
 })
 
-cam.position.y = 100
+const boxGeom = new BoxGeometry(1, 1, 1)
+const groundGeom = new PlaneGeometry(1000, 1000, 1000, 10, 10)
+// const gridHelper = new GridHelper( 1000, 10 )
+// scene.add( gridHelper )
 
-const state = {
-  x: 0,
-  y: 0,
-}
 
-const endState = {
-  x: 6 * Math.PI,
-  y: 6 * Math.PI,
-}
+const cube = new Mesh(
+  boxGeom,
+  normalMaterial,
+)
+
+const ground = new Mesh(
+  groundGeom,
+  normalMaterial,
+)
+
+scene.add(cube)
+scene.add(ground)
+
+ground.position.y = -10
+ground.rotation.x = 1.5708
+cam.position.z = 5
 
 const loop = (time) => {
-  requestAnimationFrame(loop)
   renderer.render(scene, cam)
-  spheres.forEach((sphere, i) => {
-    sphere.rotation.x += 0.01
-    sphere.rotation.y += 0.01
-  })
-  cam.position.z = Math.sin(time * 0.0005) * 100
-  cam.position.x = Math.cos(time * 0.0005) * 100
-  cam.lookAt(scene.position)
+  requestAnimationFrame(loop)
 }
 
 loop()
