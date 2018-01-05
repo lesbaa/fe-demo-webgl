@@ -16,10 +16,6 @@ module.exports = {
       {
         from: './app/assets',
         to: 'assets'
-      },
-      {
-        test: /\.glsl$/,
-        loader: 'webpack-glsl'
       }
     ]),
   ],
@@ -43,6 +39,10 @@ module.exports = {
             ]
           }
         }
+      },
+      {
+        test: /\.glsl$/,
+        loader: 'webpack-glsl'
       }
     ]
   }
