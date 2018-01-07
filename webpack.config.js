@@ -20,7 +20,7 @@ module.exports = {
     ]),
   ],
   devtool: 'inline-source-map',
-    devServer: {
+  devServer: {
     contentBase: './dist',
     port: 1234,
   },
