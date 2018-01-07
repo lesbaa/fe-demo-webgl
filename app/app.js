@@ -14,12 +14,8 @@ import {
   DoubleSide,
   MeshNormalMaterial,
   PlaneGeometry,
+  Vector3,
 } from 'three'
-
-import {
-  World,
-  Vec3,
-} from 'cannon'
 
 // https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing.html
 
@@ -37,22 +33,21 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
 
-const world = new World({
-  gravity: new Vec3(0, 0, -9.82)
-})
-
 const normalMaterial = new MeshNormalMaterial({
   side: DoubleSide,
 })
 
 const boxGeom = new BoxGeometry(1, 1, 1)
+const sphereGeom = new SphereGeometry(1, 50, 50)
 const groundGeom = new PlaneGeometry(1000, 1000, 1000, 10, 10)
-// const gridHelper = new GridHelper( 1000, 10 )
-// scene.add( gridHelper )
-
 
 const cube = new Mesh(
   boxGeom,
+  normalMaterial,
+)
+
+const sphere = new Mesh(
+  sphereGeom,
   normalMaterial,
 )
 
@@ -64,13 +59,24 @@ const ground = new Mesh(
 scene.add(cube)
 scene.add(ground)
 
-ground.position.y = -10
 ground.rotation.x = 1.5708
+ground.position.y = -10
 cam.position.z = 5
+cam.position.y = 2
+
+cube.rotation.x = 0.34
+cube.position.y = 2
 
 const loop = (time) => {
-  renderer.render(scene, cam)
   requestAnimationFrame(loop)
+  cam.position.z = Math.sin((time / 1000) - 0.5) * 2
+  cam.position.x = Math.cos((time / 1000) - 0.5) * 2
+  cam.lookAt(new Vector3(
+    cube.position.x,
+    cube.position.y,
+    cube.position.z,
+  ))
+  renderer.render(scene, cam)
 }
 
 loop()
