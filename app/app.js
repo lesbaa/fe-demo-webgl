@@ -3,7 +3,10 @@ import './modules/effect-composer'
 import './modules/shader-pass'
 import './modules/copy-shader'
 import './modules/render-pass'
-import dotScreenShader from './shaders/dot-screen-shader'
+import './modules/orbit-controls'
+import dotScreenShader from './shaders/dot-screen'
+import rgbShiftShader from './shaders/rgb-shift'
+import { PointLight } from 'three';
 
 const {
   Scene,
@@ -20,16 +23,18 @@ const {
   SphericalReflectionMapping,
   DoubleSide,
   MeshNormalMaterial,
+  MeshLambertMaterial,
   PlaneGeometry,
   Vector3,
   EffectComposer,
+  OrbitControls,
 } = THREE
 
 // https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing.html
 
 const canvas = document.getElementById('c')
 const scene = new Scene()
-const cam = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
+const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 const textureLoader = new TextureLoader()
 
 const envMap = textureLoader.load('assets/texture.png')
@@ -42,9 +47,18 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
 
-const normalMaterial = new MeshNormalMaterial({
+const normalMaterial = new MeshLambertMaterial({
   side: DoubleSide,
+  color: 0x66dddd,
 })
+
+const light = new PointLight( 0x44ddcc, 1.00)
+light.position.set(5, 5, 5)
+scene.add(light)
+
+const lightTwo = new PointLight( 0xdd3333, 1.00)
+lightTwo.position.set(-5, -5, -5)
+scene.add(lightTwo)
 
 const boxGeom = new BoxGeometry(1, 1, 1)
 const sphereGeom = new SphereGeometry(1, 50, 50)
@@ -54,6 +68,7 @@ const cube = new Mesh(
   boxGeom,
   normalMaterial,
 )
+
 
 const sphere = new Mesh(
   sphereGeom,
@@ -69,34 +84,39 @@ scene.add(cube)
 scene.add(ground)
 
 
-const composer = new THREE.EffectComposer( renderer );
-composer.addPass( new THREE.RenderPass( scene, cam ) );
+const composer = new THREE.EffectComposer( renderer )
+composer.addPass( new THREE.RenderPass( scene, camera ) )
 
-const effect = new THREE.ShaderPass( dotScreenShader );
-effect.uniforms[ 'scale' ].value = 4;
-composer.addPass( effect );
+const dotScreenEffect = new THREE.ShaderPass( dotScreenShader )
+dotScreenEffect.uniforms[ 'scale' ].value = 2
+composer.addPass( dotScreenEffect )
+
+const rgbShiftEffect = new THREE.ShaderPass( rgbShiftShader )
+rgbShiftEffect.uniforms[ 'amount' ].value = 0.010
+rgbShiftEffect.renderToScreen = true
+composer.addPass( rgbShiftEffect )
 
 ground.rotation.x = 1.5708
 ground.position.y = -10
-cam.position.z = 5
-cam.position.y = 2
-
-// cube.rotation.x = 0.34
-cube.position.y = 2
+camera.position.z = 5
+camera.position.y = 2
+const controls = new OrbitControls(camera, renderer.domElement)
 
 const loop = (time) => {
+  requestAnimationFrame(loop)
   cube.rotation.x += 0.01
   cube.rotation.y += 0.03
   cube.rotation.z += 0.01
-  requestAnimationFrame(loop)
-  // cam.position.z = Math.sin((time / 1000) - 0.5) * 2
-  // cam.position.x = Math.cos((time / 1000) - 0.5) * 2
-  cam.lookAt(new Vector3(
+  rgbShiftEffect.uniforms[ 'amount' ].value = Math.sin(time / 100) / 100
+  rgbShiftEffect.uniforms[ 'angle' ].value = -time / 1000
+
+  camera.lookAt(new Vector3(
     cube.position.x,
     cube.position.y,
     cube.position.z,
   ))
-  renderer.render(scene, cam)
+  controls.update()
+  composer.render()
 }
 
 loop()
