@@ -1,4 +1,6 @@
-export default {
+import * as THREE from 'three'
+
+THREE.CopyShader = {
 
 	uniforms: {
 
@@ -37,4 +39,4 @@ export default {
 
 	].join( "\n" )
 
-}
+};

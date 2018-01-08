@@ -1,4 +1,11 @@
-import {
+import * as THREE from 'three'
+import './modules/effect-composer'
+import './modules/shader-pass'
+import './modules/copy-shader'
+import './modules/render-pass'
+import dotScreenShader from './shaders/dot-screen-shader'
+
+const {
   Scene,
   PerspectiveCamera,
   WebGLRenderer,
@@ -15,7 +22,8 @@ import {
   MeshNormalMaterial,
   PlaneGeometry,
   Vector3,
-} from 'three'
+  EffectComposer,
+} = THREE
 
 // https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing.html
 
@@ -29,6 +37,7 @@ envMap.mapping = SphericalReflectionMapping
 
 const renderer = new WebGLRenderer({
   canvas,
+  antialias: true,
 })
 
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
@@ -59,18 +68,29 @@ const ground = new Mesh(
 scene.add(cube)
 scene.add(ground)
 
+
+const composer = new THREE.EffectComposer( renderer );
+composer.addPass( new THREE.RenderPass( scene, cam ) );
+
+const effect = new THREE.ShaderPass( dotScreenShader );
+effect.uniforms[ 'scale' ].value = 4;
+composer.addPass( effect );
+
 ground.rotation.x = 1.5708
 ground.position.y = -10
 cam.position.z = 5
 cam.position.y = 2
 
-cube.rotation.x = 0.34
+// cube.rotation.x = 0.34
 cube.position.y = 2
 
 const loop = (time) => {
+  cube.rotation.x += 0.01
+  cube.rotation.y += 0.03
+  cube.rotation.z += 0.01
   requestAnimationFrame(loop)
-  cam.position.z = Math.sin((time / 1000) - 0.5) * 2
-  cam.position.x = Math.cos((time / 1000) - 0.5) * 2
+  // cam.position.z = Math.sin((time / 1000) - 0.5) * 2
+  // cam.position.x = Math.cos((time / 1000) - 0.5) * 2
   cam.lookAt(new Vector3(
     cube.position.x,
     cube.position.y,
