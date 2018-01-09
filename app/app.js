@@ -36,11 +36,12 @@ const canvas = document.getElementById('c')
 const scene = new Scene()
 const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 const textureLoader = new TextureLoader()
-
+const RESOLUTION = 10
 const envMap = textureLoader.load('assets/texture.png')
 envMap.mapping = SphericalReflectionMapping
 
 const renderer = new WebGLRenderer({
+  // preserveDrawingBuffer: true,
   canvas,
   antialias: true,
 })
@@ -88,7 +89,7 @@ const composer = new THREE.EffectComposer( renderer )
 composer.addPass( new THREE.RenderPass( scene, camera ) )
 
 const dotScreenEffect = new THREE.ShaderPass( dotScreenShader )
-dotScreenEffect.uniforms[ 'scale' ].value = 2
+dotScreenEffect.uniforms[ 'scale' ].value = 2.4
 composer.addPass( dotScreenEffect )
 
 const rgbShiftEffect = new THREE.ShaderPass( rgbShiftShader )
@@ -98,17 +99,17 @@ composer.addPass( rgbShiftEffect )
 
 ground.rotation.x = 1.5708
 ground.position.y = -10
-camera.position.z = 5
-camera.position.y = 2
+camera.position.z = 2.8
+camera.position.y = 1.7
 const controls = new OrbitControls(camera, renderer.domElement)
 
 const loop = (time) => {
   requestAnimationFrame(loop)
-  cube.rotation.x += 0.01
-  cube.rotation.y += 0.03
-  cube.rotation.z += 0.01
-  rgbShiftEffect.uniforms[ 'amount' ].value = Math.sin(time / 100) / 100
-  rgbShiftEffect.uniforms[ 'angle' ].value = -time / 1000
+  // cube.rotation.x = 0.5
+  cube.rotation.y = 1.57 / 2
+  // cube.rotation.z += 0.01
+  // rgbShiftEffect.uniforms[ 'amount' ].value = Math.sin(time / 100) / 100
+  // rgbShiftEffect.uniforms[ 'angle' ].value = -time / 1000
 
   camera.lookAt(new Vector3(
     cube.position.x,
@@ -117,6 +118,32 @@ const loop = (time) => {
   ))
   controls.update()
   composer.render()
+}
+
+window.saveAsImage = (filename = 'image.jpg') => {
+
+  try {
+      const strMime = "image/jpeg";
+      const imgData = renderer.domElement.toDataURL(strMime)
+
+      saveFile(imgData.replace(strMime, 'image/octet-stream'), filename)
+  } catch (e) {
+      console.log(e)
+      return
+  }
+}
+
+const saveFile = (strData, filename) => {
+  const link = document.createElement('a');
+  if (typeof link.download === 'string') {
+      document.body.appendChild(link); //Firefox requires the link to be in the body
+      link.download = filename;
+      link.href = strData;
+      link.click();
+      document.body.removeChild(link); //remove the link when done
+  } else {
+      location.replace(uri);
+  }
 }
 
 loop()
