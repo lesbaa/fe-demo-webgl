@@ -27,6 +27,7 @@ const {
   ShaderMaterial,
   PlaneGeometry,
   Vector3,
+  Vector2,
   OrbitControls,
 } = THREE
 
@@ -77,9 +78,13 @@ scene.add(ground)
 
 camera.position.z = 2.8
 
-const loop = (time) => {
-  requestAnimationFrame(loop)
-  customShaderMaterial.uniforms['tLes'].value = time / 1000
+const loop = (e) => {
+  // requestAnimationFrame(loop)
+  const {
+    clientX,
+    clientY,
+  } = e
+  customShaderMaterial.uniforms['mousePos'].value = new Vector2(clientX, clientY)
   camera.lookAt(new Vector3(
     ground.position.x,
     ground.position.y,
@@ -88,7 +93,7 @@ const loop = (time) => {
   renderer.render(scene, camera)
 }
 
-loop()
+window.addEventListener('mousemove', loop)
 
 window.saveAsImage = (filename = 'image.jpg') => {
 
