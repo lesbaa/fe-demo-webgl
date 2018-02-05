@@ -3,6 +3,7 @@
 // and here
 // https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
 import demoShader from './shaders/1-vertices'
+import WebGLDebugUtils from 'webgl-debug'
 
 const {
   vertexShader: vertexSrc,
@@ -12,7 +13,17 @@ const {
 } = demoShader
 
 const c = document.getElementById('c')
-const gl = c.getContext('webgl')
+
+// this is just a handy tool for debugging the stuff with the things
+function throwOnGLError(err, funcName, args) {
+  throw WebGLDebugUtils.glEnumToString(err)
+  + 'was caused by call to '
+  + funcName
+}
+
+const gl = WebGLDebugUtils.makeDebugContext(c.getContext('webgl'), throwOnGLError)
+
+window.gl = gl
 
 // we need a function that creates the shaders in a usable format for the API
 
@@ -60,45 +71,65 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 // pass in vertext data (clipspace coords!)
 // double check these values
 const positions = [
-  0, 0,
   0, 0.5,
-  0.7, 0,
+  -0.5, -0.4,
+  0.5, -0.4,
 ]
 
 // buffer it
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
+// binds a uniform to a location
+const timeUniformLocation = gl.getUniformLocation(glPrgrm, 't')
+
 // we need to tell the API what size to render the content to
+const devicePixelRatio = window.devicePixelRatio || 1
+c.width = window.innerWidth * devicePixelRatio
+c.height = window.innerHeight * devicePixelRatio
+
 gl.viewport(0, 0, c.width, c.height)
-// this tells the API how clipspace maps to the canvas dimensions 
+// this tells the API how clipspace coords map to the canvas dimensions 
 /* gl.viewport(
   clipSpaceX -1, // left
   clipSpaceY -1, // top
   clipSpaceX +1, // right
   clipSpaceY +1  // bottom
-) // double check these values les!
+)
 */
 
 gl.useProgram(glPrgrm) // duh
+const drawScene = (now) => {
+  now *= 0.001
 
-gl.enableVertexAttribArray(positionAttributeLocation)
-// turns the attribute location 'on'
+  gl.enableVertexAttribArray(positionAttributeLocation)
+  // turns the attribute location 'on'
 
-// Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-gl.vertexAttribPointer(
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
+
+  // pass in canvas dimensions as a uniform
+  gl.uniform1f(timeUniformLocation, now)
+
+  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+  gl.vertexAttribPointer(
     positionAttributeLocation,
     2, // take out 2 elements per iteration
     gl.FLOAT, //  the data type
     false, // whether to normalize the data
     0, // stride, *look this up*  0 = move forward size * sizeof(type) each iteration to get the next position
     0 // what index in the array to start at
-)
+  )
 
-// finally, we can draw it
-const primitiveType = gl.TRIANGLES // 
-const offset = 0 // at what point to execute it
-const count = 3 // how many times to execute the shader
-gl.drawArrays(primitiveType, offset, count)
+  // finally, we can draw it
+  const primitiveType = gl.TRIANGLES // 
+  const offset = 0 // at what point to execute it
+  const count = 3 // how many times to execute the shader
+
+  gl.drawArrays(primitiveType, offset, count)
+  requestAnimationFrame(drawScene)
+
+}
+
+drawScene()
 
 window.addEventListener('resize', handleResize)
 
@@ -111,9 +142,11 @@ function handleResize() {
   if (c.width  != displayWidth ||
       c.height != displayHeight) {
  
-    // Make the canvas the same size
-    c.width  = displayWidth
-    c.height = displayHeight
+    // set the size of the drawingBuffer
+    const devicePixelRatio = window.devicePixelRatio || 1
+    c.width = window.innerWidth * devicePixelRatio
+    c.height = window.innerHeight * devicePixelRatio
     gl.viewport(0, 0, c.width, c.height)
+
   }
 }
