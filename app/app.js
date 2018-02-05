@@ -1,3 +1,7 @@
+// most of this was taking from here
+//https://webglfundamentals.org/webgl/lessons/webgl-fundamentals.html
+// and here
+// https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
 import demoShader from './shaders/1-vertices'
 
 const {
