@@ -1,122 +1,115 @@
-import * as THREE from 'three'
-import './modules/effect-composer'
-import './modules/shader-pass'
-import './modules/copy-shader'
-import './modules/render-pass'
-import './modules/orbit-controls'
-import lesCustomShader from './shaders/les-custom'
-import WebGLDebugUtil from 'webgl-debug'
-import { PointLight } from 'three'
+import demoShader from './shaders/1-vertices'
 
 const {
-  Scene,
-  PerspectiveCamera,
-  WebGLRenderer,
-  BoxGeometry,
-  Mesh,
-  AmbientLight,
-  AdditiveBlending,
-  GridHelper,
-  SpotLight,
-  SphereGeometry,
-  TextureLoader,
-  SphericalReflectionMapping,
-  DoubleSide,
-  MeshNormalMaterial,
-  MeshLambertMaterial,
-  ShaderMaterial,
-  PlaneGeometry,
-  Vector3,
-  Vector2,
-  OrbitControls,
-} = THREE
+  vertexShader: vertexSrc,
+  fragmentShader: fragmentSrc,
+  uniforms,
+  attributes,
+} = demoShader
 
-// https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing.html
+const c = document.getElementById('c')
+const gl = c.getContext('webgl')
 
-const canvas = document.getElementById('c')
-const scene = new Scene()
-const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
-const textureLoader = new TextureLoader()
-const RESOLUTION = 10
-const envMap = textureLoader.load('assets/texture.png')
-envMap.mapping = SphericalReflectionMapping
+// we need a function that creates the shaders in a usable format for the API
 
-const renderer = new WebGLRenderer({
-  // preserveDrawingBuffer: true,
-  canvas,
-  antialias: true,
-})
-
-function throwOnGLError(err, funcName, args) {
-  throw WebGLDebugUtils.glEnumToString(err)
-  + "was caused by call to " 
-  + funcName
+const createShader = (gl, type, source) => {
+  const shader = gl.createShader(type)
+  gl.shaderSource(shader, source)
+  gl.compileShader(shader)
+  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
+  if (success) {
+    return shader
+  }
+ 
+  console.log(gl.getShaderInfoLog(shader))
+  gl.deleteShader(shader)
 }
 
-renderer.context = WebGLDebugUtils.makeDebugContext(renderer.context, throwOnGLError)
+const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSrc)
+const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSrc)
 
-renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
+// now we need to link and compile the shaders...
 
-const normalMaterial = new MeshLambertMaterial({
-  side: DoubleSide,
-  color: 0x66dddd,
-})
+const createProgram = (gl, vertexShader, fragmentShader) => {
+  const program = gl.createProgram()
+  gl.attachShader(program, vertexShader)
+  gl.attachShader(program, fragmentShader)
+  gl.linkProgram(program)
+  const success = gl.getProgramParameter(program, gl.LINK_STATUS)
+  if (success) {
+    return program
+  }
 
-const customShaderMaterial = new ShaderMaterial(lesCustomShader)
+  console.log(gl.getProgramInfoLog(program))
+  gl.deleteProgram(program)
+}
 
-const boxGeom = new BoxGeometry(1, 1, 1)
-const sphereGeom = new SphereGeometry(1, 50, 50)
-const groundGeom = new PlaneGeometry(1000, 1000, 1000, 10, 10)
+const glPrgrm = createProgram(gl, vertexShader, fragmentShader)
 
-const ground = new Mesh(
-  groundGeom,
-  customShaderMaterial,
+// in order to pass data / state to the shader program we need to get the location of the 'attribute'
+const positionAttributeLocation = gl.getAttribLocation(glPrgrm, 'les_position')
+
+// and create a buffer for this attribute to pass data to during the render loop and bind it
+const positionBuffer = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+
+// pass in vertext data (clipspace coords!)
+// double check these values
+const positions = [
+  0, 0,
+  0, 0.5,
+  0.7, 0,
+]
+
+// buffer it
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
+
+// we need to tell the API what size to render the content to
+gl.viewport(0, 0, c.width, c.height)
+// this tells the API how clipspace maps to the canvas dimensions 
+/* gl.viewport(
+  clipSpaceX -1, // left
+  clipSpaceY -1, // top
+  clipSpaceX +1, // right
+  clipSpaceY +1  // bottom
+) // double check these values les!
+*/
+
+gl.useProgram(glPrgrm) // duh
+
+gl.enableVertexAttribArray(positionAttributeLocation)
+// turns the attribute location 'on'
+
+// Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+gl.vertexAttribPointer(
+    positionAttributeLocation,
+    2, // take out 2 elements per iteration
+    gl.FLOAT, //  the data type
+    false, // whether to normalize the data
+    0, // stride, *look this up*  0 = move forward size * sizeof(type) each iteration to get the next position
+    0 // what index in the array to start at
 )
 
-// scene.add(cube)
-scene.add(ground)
+// finally, we can draw it
+const primitiveType = gl.TRIANGLES // 
+const offset = 0 // at what point to execute it
+const count = 3 // how many times to execute the shader
+gl.drawArrays(primitiveType, offset, count)
 
-camera.position.z = 2.8
+window.addEventListener('resize', handleResize)
 
-const loop = (e) => {
-  // requestAnimationFrame(loop)
-  const {
-    clientX,
-    clientY,
-  } = e
-  customShaderMaterial.uniforms['mousePos'].value = new Vector2(clientX, clientY)
-  camera.lookAt(new Vector3(
-    ground.position.x,
-    ground.position.y,
-    ground.position.z,
-  ))
-  renderer.render(scene, camera)
-}
-
-window.addEventListener('mousemove', loop)
-
-window.saveAsImage = (filename = 'image.jpg') => {
-
-  try {
-      const strMime = "image/jpeg";
-      const imgData = renderer.domElement.toDataURL(strMime)
-
-      saveFile(imgData.replace(strMime, 'image/octet-stream'), filename)
-  } catch (e) {
-      console.log(e)
-      return
-  }
-}
-
-const saveFile = (strData, filename) => {
-  const link = document.createElement('a');
-  if (typeof link.download === 'string') {
-      document.body.appendChild(link); //Firefox requires the link to be in the body
-      link.download = filename;
-      link.href = strData;
-      link.click();
-      document.body.removeChild(link); //remove the link when done
-  } else {
-      location.replace(uri);
+function handleResize() {
+  // Lookup the size the browser is displaying the canvas.
+  var displayWidth  = c.clientWidth
+  var displayHeight = c.clientHeight
+ 
+  // Check if the canvas is not the same size.
+  if (c.width  != displayWidth ||
+      c.height != displayHeight) {
+ 
+    // Make the canvas the same size
+    c.width  = displayWidth
+    c.height = displayHeight
+    gl.viewport(0, 0, c.width, c.height)
   }
 }
