@@ -2,7 +2,8 @@ precision mediump float;
 uniform float t;
 
 void main() {
-  // gl_FragCoord
+  // gl_FragCoord, explain this
+  // remember to change the phase for cool effects!
   float g = sin(gl_FragCoord.y / 10.0) * sin(gl_FragCoord.x / 10.0) + sin(t);
   float r = sin(gl_FragCoord.x / 10.0) * sin(gl_FragCoord.y / 10.0) + sin(t);
   float b = sin(gl_FragCoord.x / 500.0);
