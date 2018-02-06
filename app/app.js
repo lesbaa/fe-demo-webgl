@@ -46,6 +46,9 @@ addGeomAttr(
 )
 
 createAndSetupTexture('./assets/doge.jpeg', gl)
+//////// HERE LES ////////
+// finish loading texture
+// fix eslint freaking out about async await
 
 // we need to tell the API what size to render the content to
 const devicePixelRatio = window.devicePixelRatio || 1
