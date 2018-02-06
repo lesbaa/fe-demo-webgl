@@ -4,7 +4,9 @@
 // https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
 import demoShader from './shaders/1-vertices'
 import WebGLDebugUtils from 'webgl-debug'
-
+import {
+  createWebGlProgram,
+} from './modules/utils'
 const {
   vertexShader: vertexSrc,
   fragmentShader: fragmentSrc,
@@ -25,41 +27,7 @@ const gl = WebGLDebugUtils.makeDebugContext(c.getContext('webgl'), throwOnGLErro
 
 window.gl = gl
 
-// we need a function that creates the shaders in a usable format for the API
-
-const createShader = (gl, type, source) => {
-  const shader = gl.createShader(type)
-  gl.shaderSource(shader, source)
-  gl.compileShader(shader)
-  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
-  if (success) {
-    return shader
-  }
- 
-  console.log(gl.getShaderInfoLog(shader))
-  gl.deleteShader(shader)
-}
-
-const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSrc)
-const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSrc)
-
-// now we need to link and compile the shaders...
-
-const createProgram = (gl, vertexShader, fragmentShader) => {
-  const program = gl.createProgram()
-  gl.attachShader(program, vertexShader)
-  gl.attachShader(program, fragmentShader)
-  gl.linkProgram(program)
-  const success = gl.getProgramParameter(program, gl.LINK_STATUS)
-  if (success) {
-    return program
-  }
-
-  console.log(gl.getProgramInfoLog(program))
-  gl.deleteProgram(program)
-}
-
-const glPrgrm = createProgram(gl, vertexShader, fragmentShader)
+const glPrgrm = createWebGlProgram(gl, vertexSrc, fragmentSrc)
 
 // in order to pass data / state to the shader program we need to get the location of the 'attribute'
 const positionAttributeLocation = gl.getAttribLocation(glPrgrm, 'les_position')
@@ -129,7 +97,6 @@ const drawScene = (now) => {
 
   gl.drawArrays(primitiveType, offset, count)
   requestAnimationFrame(drawScene)
-
 }
 
 drawScene()
