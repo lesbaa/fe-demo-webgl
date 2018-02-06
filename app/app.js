@@ -71,9 +71,12 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 // pass in vertext data (clipspace coords!)
 // double check these values
 const positions = [
-  0, 0.5,
-  -0.5, -0.4,
-  0.5, -0.4,
+  -0.5, 0.5,
+  -0.5, -0.5,
+  0.5, 0.5,
+  0.5, 0.5,
+  0.5, -0.5,
+  -0.5, -0.5,
 ]
 
 // buffer it
@@ -122,7 +125,7 @@ const drawScene = (now) => {
   // finally, we can draw it
   const primitiveType = gl.TRIANGLES // 
   const offset = 0 // at what point to execute it
-  const count = 3 // how many times to execute the shader
+  const count = 6 // how many times to execute the shader
 
   gl.drawArrays(primitiveType, offset, count)
   requestAnimationFrame(drawScene)
