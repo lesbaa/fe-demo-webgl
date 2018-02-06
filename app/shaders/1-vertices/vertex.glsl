@@ -2,28 +2,17 @@
 precision mediump float;
 attribute vec4 les_position;
 uniform float t;
+
+attribute vec2 a_textcoord;
+varying vec2 v_textcoord;
 // all shaders have a main function
 void main() {
-  float x;
-  float y;
-  if (les_position.y > 0.0) {
-    x = les_position.x + sin(t * 10.0) / 10.0;
-  } else {
-    x = les_position.x + cos(t * 10.0) / 10.0;
-  }
-
-  if (les_position.x > 0.0) {
-    y = les_position.y + sin(t * 10.0) / 10.0;
-  } else {
-    y = les_position.y + cos(t * 10.0) / 10.0;
-  }
 
   // gl_Position is a special variable a vertex shader
   // is responsible for setting
+  v_textcoord = a_textcoord;
   gl_Position = vec4(
-    x,
-    y,
-    les_position.zw
+    les_position.xyzw
   );
 }
 // the below vertex shader renders according to screenSpace instead of clipspace
