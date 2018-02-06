@@ -45,6 +45,8 @@ addGeomAttr(
   ]
 )
 
+createAndSetupTexture('./assets/doge.jpeg', gl)
+
 // we need to tell the API what size to render the content to
 const devicePixelRatio = window.devicePixelRatio || 1
 c.width = window.innerWidth * devicePixelRatio
@@ -61,7 +63,7 @@ gl.viewport(0, 0, c.width, c.height)
 */
 
 // binds a uniform to a location
-const timeUniformLocation = gl.getUniformLocation(glPrgrm, 't')
+const timeUniformLocation = gl.getUniformLocation(glPrgrm, 'globalTime')
 
 gl.useProgram(glPrgrm) // duh
 

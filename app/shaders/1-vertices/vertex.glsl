@@ -1,13 +1,12 @@
 // an attribute will receive data from a buffer
 precision mediump float;
 attribute vec4 les_position;
-uniform float t;
+uniform float globalTime;
 
 attribute vec2 a_textcoord;
 varying vec2 v_textcoord;
 // all shaders have a main function
 void main() {
-
   // gl_Position is a special variable a vertex shader
   // is responsible for setting
   v_textcoord = a_textcoord;

@@ -1,5 +1,5 @@
 precision mediump float;
-uniform float t;
+uniform float globalTime;
 
 void main() {
   // gl_FragCoord, explain this

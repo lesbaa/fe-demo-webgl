@@ -29,10 +29,18 @@ export const createWebGlProgram = (gl, vertexSrc, fragmentSrc) => {
   gl.deleteProgram(program)
 }
 
-export const createAndSetupTexture = (gl) => {
+export const loadImage = (imageUrl) => {
+  return new Promise((res, rej) => {
+    const img = document.createElement('img')
+    img.src = imageUrl
+    img.onload = res(img)
+  })
+}
+
+export async function createAndSetupTexture (imageUrl, gl) {
   var texture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, texture)
-
+  const image = await loadImage(imageUrl)
   // Set up texture so we can render any size image and so we are
   // working with pixels.
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -40,7 +48,7 @@ export const createAndSetupTexture = (gl) => {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 
-  return texture
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
 }
 
 export const addGeomAttr = (gl, attribLoc, vertices) => {
