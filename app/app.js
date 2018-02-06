@@ -27,7 +27,7 @@ const gl = WebGLDebugUtils.makeDebugContext(c.getContext('webgl'), throwOnGLErro
 
 window.gl = gl
 
-const glPrgrm = createWebGlProgram(gl, vertexSrc, fragmentSrc)
+const glPrgrm = createWebGlProgram(gl, vertexSrc, fragmentSrc) // this is our set up code abstracted out
 
 // in order to pass data / state to the shader program we need to get the location of the 'attribute'
 const positionAttributeLocation = gl.getAttribLocation(glPrgrm, 'les_position')
@@ -38,7 +38,7 @@ gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 
 // pass in vertext data (clipspace coords!)
 // double check these values
-const positions = [
+let positions = [
   -0.5, 0.5,
   -0.5, -0.5,
   0.5, 0.5,
@@ -74,7 +74,8 @@ const drawScene = (now) => {
 
   gl.enableVertexAttribArray(positionAttributeLocation)
   // turns the attribute location 'on'
-
+  positions = positions.map(p => p + (Math.sin(now) / 500))
+  console.log(Math.sin(now))
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
   // pass in canvas dimensions as a uniform
@@ -99,7 +100,7 @@ const drawScene = (now) => {
   requestAnimationFrame(drawScene)
 }
 
-drawScene()
+drawScene(0.0)
 
 window.addEventListener('resize', handleResize)
 
