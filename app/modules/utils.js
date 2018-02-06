@@ -33,7 +33,7 @@ export const loadImage = (imageUrl) => {
   return new Promise((res, rej) => {
     const img = document.createElement('img')
     img.src = imageUrl
-    img.onload = res(img)
+    img.onload = () => { res(img) }
   })
 }
 
