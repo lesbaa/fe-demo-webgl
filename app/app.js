@@ -6,12 +6,12 @@ import demoShader from './shaders/1-vertices'
 import WebGLDebugUtils from 'webgl-debug'
 import {
   createWebGlProgram,
+  createAndSetupTexture,
+  addGeomAttr,
 } from './modules/utils'
 const {
   vertexShader: vertexSrc,
   fragmentShader: fragmentSrc,
-  uniforms,
-  attributes,
 } = demoShader
 
 const c = document.getElementById('c')
@@ -32,26 +32,18 @@ const glPrgrm = createWebGlProgram(gl, vertexSrc, fragmentSrc) // this is our se
 // in order to pass data / state to the shader program we need to get the location of the 'attribute'
 const positionAttributeLocation = gl.getAttribLocation(glPrgrm, 'les_position')
 
-// and create a buffer for this attribute to pass data to during the render loop and bind it
-const positionBuffer = gl.createBuffer()
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-
-// pass in vertext data (clipspace coords!)
-// double check these values
-let positions = [
-  -0.5, 0.5,
-  -0.5, -0.5,
-  0.5, 0.5,
-  0.5, 0.5,
-  0.5, -0.5,
-  -0.5, -0.5,
-]
-
-// buffer it
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
-
-// binds a uniform to a location
-const timeUniformLocation = gl.getUniformLocation(glPrgrm, 't')
+addGeomAttr(
+  gl,
+  positionAttributeLocation,
+  [
+    -0.5, 0.5,
+    -0.5, -0.5,
+    0.5, 0.5,
+    0.5, 0.5,
+    0.5, -0.5,
+    -0.5, -0.5,
+  ]
+)
 
 // we need to tell the API what size to render the content to
 const devicePixelRatio = window.devicePixelRatio || 1
@@ -68,28 +60,18 @@ gl.viewport(0, 0, c.width, c.height)
 )
 */
 
+// binds a uniform to a location
+const timeUniformLocation = gl.getUniformLocation(glPrgrm, 't')
+
 gl.useProgram(glPrgrm) // duh
+
 const drawScene = (now) => {
   now *= 0.001
-
-  gl.enableVertexAttribArray(positionAttributeLocation)
-  // turns the attribute location 'on'
-  positions = positions.map(p => p + (Math.sin(now) / 500))
-  console.log(Math.sin(now))
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
   // pass in canvas dimensions as a uniform
   gl.uniform1f(timeUniformLocation, now)
 
-  // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-  gl.vertexAttribPointer(
-    positionAttributeLocation,
-    2, // take out 2 elements per iteration
-    gl.FLOAT, //  the data type
-    false, // whether to normalize the data
-    0, // stride, *look this up*  0 = move forward size * sizeof(type) each iteration to get the next position
-    0 // what index in the array to start at
-  )
+
 
   // finally, we can draw it
   const primitiveType = gl.TRIANGLES // 
