@@ -25,7 +25,7 @@ export const createWebGlProgram = (gl, vertexSrc, fragmentSrc) => {
     return program
   }
 
-  console.log(gl.getProgramInfoLog(program))
+  console.error(gl.getProgramInfoLog(program))
   gl.deleteProgram(program)
 }
 
@@ -33,22 +33,38 @@ export const loadImage = (imageUrl) => {
   return new Promise((res, rej) => {
     const img = document.createElement('img')
     img.src = imageUrl
-    img.onload = () => { res(img) }
+    img.onload = () => {
+      console.log(img.width, img.height)
+      res(img)
+    }
   })
 }
 
-export async function createAndSetupTexture (imageUrl, gl) {
+export async function createAndSetupTexture (imageUrl, gl, glPrgrm) {
   var texture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, texture)
   const image = await loadImage(imageUrl)
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
   // Set up texture so we can render any size image and so we are
   // working with pixels.
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+  setupTextureFilteringAndMips(image.width, image.height)
+}
 
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+export const isPowerOf2 = num => (num & (num - 1)) == 0
+
+export function setupTextureFilteringAndMips(width, height) {
+  if (isPowerOf2(width) && isPowerOf2(height)) {
+    // the dimensions are power of 2 so generate mips and turn on 
+    // tri-linear filtering.
+    gl.generateMipmap(gl.TEXTURE_2D)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+  } else {
+    // at least one of the dimensions is not a power of 2 so set the filtering
+    // so WebGL will render it.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+  }
 }
 
 export const addGeomAttr = (gl, attribLoc, vertices) => {
