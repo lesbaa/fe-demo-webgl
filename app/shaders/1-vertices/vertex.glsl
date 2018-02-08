@@ -16,9 +16,9 @@ void main() {
   float z = les_position.z; // > 0.0 ? les_position.z + sint: les_position.z + cost;
 
   v_textcoord = vec3(
-    (les_position.x - 0.5) * -1.0,
-    (les_position.y - 0.5) * -1.0,
-    (les_position.z - 0.5) * -1.0
+    (les_position.x - 0.9) * -0.5,
+    (les_position.y - 0.9) * -0.5,
+    (les_position.z - 0.9) * -0.5
   );
 
   gl_Position = vec4(

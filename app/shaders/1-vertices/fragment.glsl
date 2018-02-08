@@ -5,11 +5,17 @@ uniform sampler2D u_image;
 varying float sint;
 varying float cost;
 
+float random(vec2 c){
+  return fract(sin(dot( c.xy, vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main() {
   float texPositionX = v_textcoord.x;
   float texPositionY = v_textcoord.y;
+
   vec2 texPosition = vec2(texPositionX, texPositionY);
   vec4 texturePixel = texture2D(u_image, texPosition);
+
   float r = texturePixel.x;
   float g = texturePixel.y;
   float b = texturePixel.z;
@@ -21,6 +27,30 @@ void main() {
     a
   );
 }
+
+// old scool screen
+// void main() {
+//   float texPositionX = v_textcoord.x;
+//   float texPositionY = v_textcoord.y;
+
+//   vec2 texPosition = vec2(texPositionX, texPositionY);
+//   vec4 texturePixel = texture2D(u_image, texPosition);
+
+//   float rndm = random( vec2(texPositionX + globalTime, texPositionY + globalTime) ) / 4.0;
+
+//   float modifyWithSin = sin(texPositionY * 850.0);  
+
+//   float r = 0.0;
+//   float g = (modifyWithSin * texturePixel.y + rndm) > 0.5 ? 0.9 : 0.0;
+//   float b = 0.0;
+//   float a = (modifyWithSin * texturePixel.w - rndm) > 0.5 ? 1.0 : 0.0;
+//   gl_FragColor = vec4(
+//     r,
+//     g,
+//     b,
+//     a
+//   );
+// }
 
 // jelly doge
 // void main() {
