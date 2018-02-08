@@ -3,32 +3,28 @@ precision mediump float;
 attribute vec4 les_position;
 uniform float globalTime;
 
-attribute vec2 a_textcoord;
-varying vec2 v_textcoord;
+varying vec3 v_textcoord;
+varying float sint;
+varying float cost;
 // all shaders have a main function
 void main() {
+  sint = sin(globalTime * 2.0) / 10.0;
+  cost = cos(globalTime * 2.0) / 10.0;
   // gl_Position is a special variable a vertex shader
-  // is responsible for setting
-  v_textcoord = vec2(les_position.x - 0.5, les_position.y - 0.5);
+  float x = les_position.x > 0.0 ? les_position.x + sint : les_position.x + cost;
+  float y = les_position.y > 0.0 ? les_position.y + cost: les_position.y + sint;
+  float z = les_position.z > 0.0 ? les_position.z + sint: les_position.z + cost;
+
+  v_textcoord = vec3(
+    (les_position.x - 0.5) * -1.0,
+    (les_position.y - 0.5) * -1.0,
+    (les_position.z - 0.5) * -1.0
+  );
+
   gl_Position = vec4(
-    les_position.xyzw
+    x,
+    y,
+    z,
+    les_position.w
   );
 }
-// the below vertex shader renders according to screenSpace instead of clipspace
-// // an attribute will receive data from a buffer
-// attribute vec2 les_position;
-// uniform vec2 les_resolution;
-// uniform float t;
-
-// void main() {
-//   // convert the position from pixels to 0.0 to 1.0
-//   vec2 zeroToOne = les_position / les_resolution;
-
-//   // convert from 0->1 to 0->2
-//   vec2 zeroToTwo = zeroToOne * 2.0;
-
-//   // convert from 0->2 to -1->+1 (clipspace)
-//   vec2 clipSpace = zeroToTwo - 1.0;
-
-//   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-// }
