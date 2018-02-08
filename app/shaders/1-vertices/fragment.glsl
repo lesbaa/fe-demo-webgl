@@ -5,6 +5,20 @@ uniform sampler2D u_image;
 varying float sint;
 varying float cost;
 
+void main() {
+  vec4 texturePixel = texture2D(u_image, v_textcoord.xy);
+  float r = texturePixel.x;
+  float g = texturePixel.y;
+  float b = texturePixel.z;
+  float a = texturePixel.w;
+  gl_FragColor = vec4(
+    r,
+    g,
+    b,
+    a
+  );
+}
+
 // black and white
 // void main() {
 //   vec4 texturePixel = texture2D(u_image, v_textcoord.xy);
