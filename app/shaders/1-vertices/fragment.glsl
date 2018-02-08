@@ -6,7 +6,10 @@ varying float sint;
 varying float cost;
 
 void main() {
-  vec4 texturePixel = texture2D(u_image, v_textcoord.xy);
+  float texPositionX = v_textcoord.x;
+  float texPositionY = v_textcoord.y;
+  vec2 texPosition = vec2(texPositionX, texPositionY);
+  vec4 texturePixel = texture2D(u_image, texPosition);
   float r = texturePixel.x;
   float g = texturePixel.y;
   float b = texturePixel.z;
@@ -18,6 +21,23 @@ void main() {
     a
   );
 }
+// jelly doge
+// void main() {
+//   float texPositionX = v_textcoord.x + sin((v_textcoord.y * 20.0) + globalTime * 10.0) / 100.0;
+//   float texPositionY = v_textcoord.y + sin((v_textcoord.x * 20.0) + globalTime * 10.0) / 100.0;
+//   vec2 texPosition = vec2(texPositionX, texPositionY);
+//   vec4 texturePixel = texture2D(u_image, texPosition);
+//   float r = texturePixel.x;
+//   float g = texturePixel.y;
+//   float b = texturePixel.z;
+//   float a = texturePixel.w;
+//   gl_FragColor = vec4(
+//     r,
+//     g,
+//     b,
+//     a
+//   );
+// }
 
 // black and white
 // void main() {
