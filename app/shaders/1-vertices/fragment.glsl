@@ -21,6 +21,7 @@ void main() {
     a
   );
 }
+
 // jelly doge
 // void main() {
 //   float texPositionX = v_textcoord.x + sin((v_textcoord.y * 20.0) + globalTime * 10.0) / 100.0;
