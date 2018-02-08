@@ -33,10 +33,10 @@ export const loadImage = (imageUrl) => {
   return new Promise((res, rej) => {
     const img = document.createElement('img')
     img.src = imageUrl
-    img.onload = () => {
+    img.addEventListener('load', () => {
       console.log(img.width, img.height)
       res(img)
-    }
+    })
   })
 }
 

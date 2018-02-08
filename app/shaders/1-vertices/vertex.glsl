@@ -9,7 +9,7 @@ varying vec2 v_textcoord;
 void main() {
   // gl_Position is a special variable a vertex shader
   // is responsible for setting
-  v_textcoord = a_textcoord;
+  v_textcoord = vec2(les_position.x - 0.5, les_position.y - 0.5);
   gl_Position = vec4(
     les_position.xyzw
   );
