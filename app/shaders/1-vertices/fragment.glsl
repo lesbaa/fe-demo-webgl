@@ -2,6 +2,7 @@ precision mediump float;
 uniform float globalTime;
 varying vec3 v_textcoord;
 uniform sampler2D u_image;
+uniform sampler2D u_map;
 varying float sint;
 varying float cost;
 
@@ -12,6 +13,9 @@ float random(vec2 c){
 void main() {
   float texPositionX = v_textcoord.x;
   float texPositionY = v_textcoord.y;
+
+  vec2 mapPosition = vec2(texPositionX, texPositionY);
+  vec4 mapPixel = texture2D(u_map, mapPosition);
 
   vec2 texPosition = vec2(texPositionX, texPositionY);
   vec4 texturePixel = texture2D(u_image, texPosition);

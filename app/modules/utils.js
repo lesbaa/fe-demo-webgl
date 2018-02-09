@@ -40,14 +40,28 @@ export const loadImage = (imageUrl) => {
   })
 }
 
-export async function createAndSetupTexture (imageUrl, gl, glPrgrm) {
-  var texture = gl.createTexture()
+export async function createAndSetupTexture (imageUrl, gl, glTextureSlot, uniformLoc, glPrgrm) {
+  const texture = gl.createTexture()
+  
+  // Tell WebGL we want to affect texture unit 0
+  gl.activeTexture(gl[glTextureSlot.glSlot])
+
+  // Bind the texture to texture unit 0
   gl.bindTexture(gl.TEXTURE_2D, texture)
-  const image = await loadImage(imageUrl)
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
-  // Set up texture so we can render any size image and so we are
-  // working with pixels.
-  setupTextureFilteringAndMips(image.width, image.height)
+
+  // Tell the shader we bound the texture to texture unit 0
+  gl.uniform1i(uniformLoc, glTextureSlot.ind)
+  try {
+    const image = await loadImage(imageUrl)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+    // Set up texture so we can render any size image and so we are
+    // working with pixels.
+    setupTextureFilteringAndMips(image.width, image.height)
+  } catch(e) {
+    console.log(e)
+  }
+// https://stackoverflow.com/questions/44940952/how-to-load-multiple-textures-into-the-fragment-shader#44941054
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL
 }
 
 export const isPowerOf2 = num => (num & (num - 1)) == 0

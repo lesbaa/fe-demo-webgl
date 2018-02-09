@@ -46,6 +46,7 @@ addGeomAttr(
 )
 
 createAndSetupTexture('./assets/doge.jpeg', gl, glPrgrm)
+
 //////// HERE LES ////////
 // finish loading texture
 // fix eslint freaking out about async await
@@ -69,13 +70,17 @@ gl.viewport(0, 0, c.width, c.height)
 const timeUniformLocation = gl.getUniformLocation(glPrgrm, 'globalTime')
 
 gl.useProgram(glPrgrm) // duh
+const imageUniform = gl.getUniformLocation(glPrgrm, 'u_map')
+createAndSetupTexture('./assets/doge.jpeg', gl, { glSlot:'TEXTURE0', ind: 0 }, imageUniform, glPrgrm)
+const mapUniform = gl.getUniformLocation(glPrgrm, 'u_map')
+createAndSetupTexture('./assets/doge-bump.jpeg', gl, { glSlot: 'TEXTURE1', ind: 1 }, mapUniform, glPrgrm)
+
 
 const drawScene = (now) => {
   now *= 0.001
 
   // pass in canvas dimensions as a uniform
   gl.uniform1f(timeUniformLocation, now)
-  gl.uniform1i(gl.getUniformLocation(glPrgrm, 'u_image'), 0)
 
 
   // finally, we can draw it
