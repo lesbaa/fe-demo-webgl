@@ -17,7 +17,8 @@
  * 
  * add + manipulate uniforms
  * add textures
- * different materials?
+ * 
+ * different materials? switching shaders for different objects
  */
 
 import LesGl from './modules/les-gl'
