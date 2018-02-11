@@ -11,8 +11,8 @@ import {
 } from 'gl-matrix'
 
 import {
-  simpleSquare,
-  simpleTriangle,
+  rect,
+  isoscelesTriangle,
 } from './geometries'
 
 import getDebuggerContext from '../debugger'
@@ -143,13 +143,16 @@ export default class {
     this.gl.uniformMatrix4fv(this.shader.uniforms.mvMatrixUniform.location, false, this.mvMatrix)
   }
 
-  addGeometry = ({
-    vertices,
-    cols,
-    rows,
-    translation,
-    glPrimitive,
-  }) => {
+  addGeometry = (geometry) => {
+
+    const {
+      vertices,
+      cols,
+      rows,
+      position,
+      glPrimitive = this.gl.TRIANGLES,
+    } = geometry.bind(this)()
+
     const buffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW)
@@ -158,43 +161,46 @@ export default class {
       vertices,
       cols,
       rows,
-      translation,
+      position,
       glPrimitive,
     })
   }
   
   addTriangle = () => { // the object fields should get moved to the geom file
-    this.addGeometry({
-      vertices: simpleTriangle,
-      cols: 3,
-      rows: 3,
-      translation: [-0.5, 0.0, -5.0],
-      glPrimitive: this.gl.TRIANGLES,
-    })
+    this.addGeometry(
+      isoscelesTriangle({
+        x: 0.0,
+        y: 0.0,
+        z: -5.0,
+        w: 2.0,
+        h: 1.0,
+      })
+    )
   }
 
   addSquare = () => { // the object fields should get moved to the geom file
-    this.addGeometry({
-      vertices: simpleSquare,
-      cols: 3,
-      rows: 4,
-      translation: [1.5, 0.0, -5.0],
-      glPrimitive: this.gl.TRIANGLE_STRIP,
-    })
+    this.addGeometry(
+      rect({
+        x: 0.0,
+        y: 0.0,
+        z:-5.0,
+        w: 0.5,
+        h: 1.0,
+      })
+    )
   }
 
   render = () => {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height)
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
-    // Update: mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix); mat4.perspective() API has changed.
+    
+    // talk about perspective in here?
     mat4.perspective(this.pMatrix, 0.78, this.canvas.width / this.canvas.height, 0.1, 100.0)
     mat4.identity(this.mvMatrix)
-    // Update: mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]); mat4.translate() API has changed to mat4.translate(out, a, v)
-    // where out is the receiving matrix, a is the matrix to translate, and v is the vector to translate by. z altered to
-    // approximate original scene.
+
     for (let i = 0; i < this.geometries.length; i++) {
       const geometry = this.geometries[i]
-      mat4.translate(this.mvMatrix, this.mvMatrix, geometry.translation)
+      mat4.translate(this.mvMatrix, this.mvMatrix, Object.values(geometry.position))
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.buffer)
       this.gl.vertexAttribPointer(
         this.shader.attributes['aVertexPosition'].location,

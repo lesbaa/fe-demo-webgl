@@ -1,7 +1,7 @@
-import simpleSquare from './simple-square'
-import simpleTriangle from './simple-triangle'
+import rect from './rect'
+import isoscelesTriangle from './isosceles-triangle'
 
 export {
-  simpleSquare,
-  simpleTriangle,
+  rect,
+  isoscelesTriangle,
 }

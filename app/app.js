@@ -14,11 +14,15 @@ const c = document.getElementById('c')
 const lesGl = new LesGl(c, demoShader, true)
 
 lesGl.addTriangle()
-lesGl.addSquare()
+// lesGl.addSquare()
 // lesGl.render()
 
 const drawScene = (now) => {
-  now *= 0.001
+  now *= 0.001 
+  for (let i = 0; i < lesGl.geometries.length; i++) {
+    const geometry = lesGl.geometries[i]
+    geometry.position.z = -5 + Math.sin(now)
+  }
   lesGl.render()
   requestAnimationFrame(drawScene)
 }
