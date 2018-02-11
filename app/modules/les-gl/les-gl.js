@@ -10,11 +10,6 @@ import {
   mat4,
 } from 'gl-matrix'
 
-import {
-  rect,
-  isoscelesTriangle,
-} from './geometries'
-
 import getDebuggerContext from '../debugger'
 
 export default class {
@@ -164,30 +159,6 @@ export default class {
       position,
       glPrimitive,
     })
-  }
-  
-  addTriangle = () => { // the object fields should get moved to the geom file
-    this.addGeometry(
-      isoscelesTriangle({
-        x: 0.0,
-        y: 0.0,
-        z: -5.0,
-        w: 2.0,
-        h: 1.0,
-      })
-    )
-  }
-
-  addSquare = () => { // the object fields should get moved to the geom file
-    this.addGeometry(
-      rect({
-        x: 0.0,
-        y: 0.0,
-        z:-5.0,
-        w: 0.5,
-        h: 1.0,
-      })
-    )
   }
 
   render = () => {

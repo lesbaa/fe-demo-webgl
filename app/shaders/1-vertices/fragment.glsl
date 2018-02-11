@@ -1,6 +1,9 @@
 precision mediump float;
+varying vec4 uv;
+
 void main(void) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+  
+    gl_FragColor = vec4(1.0 - uv.z / 7.0, 1.0 - uv.z / 7.0, 1.0 - uv.z / 7.0, 0.5);
 }
 
 // old scool screen
