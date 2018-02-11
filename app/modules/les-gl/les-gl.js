@@ -1,9 +1,4 @@
-import {
-  glCreateProgram,
-  glCreateGeometry,
-  glCreateShader,
-} from './methods'
-import getDebuggerContext from '../debugger'
+// https://stackoverflow.com/questions/13009328/drawing-many-shapes-in-webgl
 
 import {
   loadImage,
@@ -15,112 +10,41 @@ import {
   mat4,
 } from 'gl-matrix'
 
-export default class LesGl {
+import {
+  simpleSquare,
+  simpleTriangle,
+} from './geometries'
+
+import getDebuggerContext from '../debugger'
+
+export default class {
+
+  gl = null
+  shaderProgram = null
+
+  mvMatrix = mat4.create()
+  pMatrix = mat4.create()
 
   geometries = []
-  context = null
-  shader = {}
-  prgrm = {}
 
-  constructor(canvas, shader, debug) {
-    this.context = debug
-      ? getDebuggerContext(canvas.getContext('webgl'))
-      : canvas.getContext('webgl')
-    this.canvas = canvas
-    
-    if (shader) this.useShader(shader)
-    this.createProgram()
-    
-    // we need to tell the API what size to render the content to
-    const devicePixelRatio = window.devicePixelRatio || 1
-
-    this.canvas.width = window.innerWidth * devicePixelRatio
-    this.canvas.height = window.innerHeight * devicePixelRatio
-
+  constructor(canvas, shader, debug) { // you should probably pass an options object
+    try {
+      this.gl = debug
+        ? getDebuggerContext(canvas.getContext('webgl'))
+        : canvas.getContext('webgl')
+      this.canvas = canvas
+    } catch (e) {
+      console.log(e)
+    }
+    if (!this.gl) {
+      console.error('Could not initialise WebGL, sorry :-(')
+      return
+    }
+    this.gl.clearColor(0.1, 0.1, 0.1, 1.0)
+    this.gl.enable(this.gl.DEPTH_TEST)
+    this.setShaders(shader) // move stuff to an init method
     window.addEventListener('resize', this.handleResize)
     this.handleResize()
-  }
-
-  init = () => {
-    this.prgrm = this.createProgram()
-    this.context.useProgram(this.prgrm)
-  }
-
-  createProgram = () => {
-    // this will need to be edited use 
-    try {
-      this.prgrm = glCreateProgram(this.context, this.shader)
-      this.getAttributeLocations()
-      
-    } catch (e) {
-      console.error('error in LesGl.createProgram:\n',e)
-    }
-  }
-
-  useShader = (shader) => {
-    const {
-      vertexShader,
-      fragmentShader,
-      uniforms,
-      attributes,
-    } = shader
-    
-    this.shader = {
-      vertexShader: glCreateShader(this.context, this.context.VERTEX_SHADER, vertexShader),
-      fragmentShader: glCreateShader(this.context, this.context.FRAGMENT_SHADER, fragmentShader),
-      uniforms,
-      attributes,
-    }
-    
-  }
-
-  updateShader = () => {
-    const {
-      uniforms,
-      attributes,
-    } = this.shader
-    const uniformObjs = Object.values(uniforms)
-
-    for (let i = 0; i < uniformObjs.length; i++) {
-      const uniform = uniformObjs[i]
-      const {
-        type,
-        location,
-        value,
-      } = uniform
-      if (isMatrixUniform(type)) {
-        this.context[type](location, false, value)
-      } else {
-        this.context[type](location, value)
-      }
-    }
-  }
-
-  getAttributeLocations = () => {
-    const {
-      uniforms,
-    } = this.shader
-    // freaking out here
-    const uniformNames = Object.keys(uniforms)
-
-    for (let i = 0; i < uniformNames.length; i++) {
-      const uniformKey = uniformNames[i]
-      this.shader.uniforms[uniformKey].location = this.context.getUniformLocation(this.prgrm, uniformKey)
-    }
-
-  }
-
-  addGeometry = ({
-    type,
-    attributeName,
-  }) => {
-    const attribLoc = this.context.getAttribLocation(this.prgrm, attributeName)
-    const geometry = glCreateGeometry(
-      this.context,
-      type,
-      attribLoc,
-    )
-    this.geometries.push(geometry)
   }
 
   handleResize = () => {
@@ -139,7 +63,7 @@ export default class LesGl {
       const devicePixelRatio = window.devicePixelRatio || 1
       canvas.width = window.innerWidth * devicePixelRatio
       canvas.height = window.innerHeight * devicePixelRatio
-      this.context.viewport(0, 0, canvas.width, canvas.height)
+      this.gl.viewport(0, 0, canvas.width, canvas.height)
       // this tells the API how clipspace coords map to the canvas dimensions 
       /* this.context.viewport(
         clipSpaceX -1, // left
@@ -151,45 +75,137 @@ export default class LesGl {
     }
   }
 
-  render = (now) => {
+  compileShaderSrc = (src, glType) => {
+    const shader = this.gl.createShader(glType)
+    this.gl.shaderSource(shader, src)
+    this.gl.compileShader(shader) 
+    if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+      console.error(this.gl.getShaderInfoLog(shader))
+      return null
+    }
+    return shader
+  }
+
+  setShaders = ({
+    f,
+    v,
+    uniforms,
+    attributes,
+  }) => {
+    const vertexShader = this.compileShaderSrc(v, this.gl.VERTEX_SHADER)
+    const fragmentShader = this.compileShaderSrc(f, this.gl.FRAGMENT_SHADER)
+
+    this.shader = {
+      vertexShader,
+      fragmentShader,
+      uniforms,
+      attributes,
+    }
+    this.initProgram()
+  }
+
+  initProgram = () => {
     const {
-      viewportWidth,
-      viewportHeight,
-      COLOR_BUFFER_BIT,
-      DEPTH_BUFFER_BIT,
-      FLOAT,
-      TRIANGLES,
-    } = this.context
-    this.context.viewport(0, 0, viewportWidth, viewportHeight)
-    // this.context.clear(COLOR_BUFFER_BIT | DEPTH_BUFFER_BIT)
-    // mat4.perspective(this.shader.uniforms['uPMatrix'], 0.7853982, viewportWidth / viewportHeight, 0.1, 100.0 )
-    // mat4.identity(this.shader.uniforms['uMVMatrix'])
-    this.context.useProgram(this.prgrm)
-    for (let i = 0; i < this.geometries.length; i++) {
-      const {
-        attribLoc,
-        totalVertices,
-        dimensions,
-        positionBuffer,
-        primitiveType = TRIANGLES,
-      } = this.geometries[i]    
+      fragmentShader,
+      vertexShader,
+    } = this.shader
+    const shaderProgram = this.gl.createProgram()
+    this.gl.attachShader(shaderProgram, vertexShader)
+    this.gl.attachShader(shaderProgram, fragmentShader)
+    this.gl.linkProgram(shaderProgram)
+    
+    if (!this.gl.getProgramParameter(shaderProgram, this.gl.LINK_STATUS)) {
+      alert('Could not initialise shaders')
+    }
+    
+    this.gl.useProgram(shaderProgram)
+    
+    this.shader.program = shaderProgram
+    this.shader.attributes['aVertexPosition'] = {
+      location: this.gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+    }
+    
+    this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
 
-      this.context.enableVertexAttribArray(attribLoc)
-      this.context.bindBuffer(this.context.ARRAY_BUFFER, positionBuffer)
-
-      this.context.vertexAttribPointer(
-        attribLoc,
-        dimensions, // take out 2 elements per iteration
-        FLOAT, //  the data type
-        false, // whether to normalize the data
-        0, // stride, *look this up*  0 = move forward size * sizeof(type) each iteration to get the next position
-        0 // what index in the array to start at
-      )
-
-      this.updateShader(now)
-      
-      this.context.drawArrays(primitiveType, 0, totalVertices)
-      // for each geometry, draw arrays
+    this.shader.uniforms.pMatrixUniform = {
+      location: this.gl.getUniformLocation(shaderProgram, 'uPMatrix'),
+    }
+    
+    this.shader.uniforms.mvMatrixUniform = {
+      location: this.gl.getUniformLocation(shaderProgram, 'uMVMatrix'),
     }
   }
-}
+
+  // add another method for updating uniforms
+
+  setMatrixUniforms = () => { 
+    this.gl.uniformMatrix4fv(this.shader.uniforms.pMatrixUniform.location, false, this.pMatrix)
+    this.gl.uniformMatrix4fv(this.shader.uniforms.mvMatrixUniform.location, false, this.mvMatrix)
+  }
+
+  addGeometry = ({
+    vertices,
+    cols,
+    rows,
+    translation,
+    glPrimitive,
+  }) => {
+    const buffer = this.gl.createBuffer()
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW)
+    this.geometries.push({
+      buffer,
+      vertices,
+      cols,
+      rows,
+      translation,
+      glPrimitive,
+    })
+  }
+  
+  addTriangle = () => { // the object fields should get moved to the geom file
+    this.addGeometry({
+      vertices: simpleTriangle,
+      cols: 3,
+      rows: 3,
+      translation: [-0.5, 0.0, -5.0],
+      glPrimitive: this.gl.TRIANGLES,
+    })
+  }
+
+  addSquare = () => { // the object fields should get moved to the geom file
+    this.addGeometry({
+      vertices: simpleSquare,
+      cols: 3,
+      rows: 4,
+      translation: [1.5, 0.0, -5.0],
+      glPrimitive: this.gl.TRIANGLE_STRIP,
+    })
+  }
+
+  render = () => {
+    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height)
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
+    // Update: mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix); mat4.perspective() API has changed.
+    mat4.perspective(this.pMatrix, 0.78, this.canvas.width / this.canvas.height, 0.1, 100.0)
+    mat4.identity(this.mvMatrix)
+    // Update: mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]); mat4.translate() API has changed to mat4.translate(out, a, v)
+    // where out is the receiving matrix, a is the matrix to translate, and v is the vector to translate by. z altered to
+    // approximate original scene.
+    for (let i = 0; i < this.geometries.length; i++) {
+      const geometry = this.geometries[i]
+      mat4.translate(this.mvMatrix, this.mvMatrix, geometry.translation)
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.buffer)
+      this.gl.vertexAttribPointer(
+        this.shader.attributes['aVertexPosition'].location,
+        geometry.cols,
+        this.gl.FLOAT,
+        false,
+        0,
+        0
+      )
+      this.setMatrixUniforms()      
+      this.gl.drawArrays(geometry.glPrimitive, 0, geometry.rows, 0)
+    }
+  }
+} // end class

@@ -6,22 +6,16 @@
 // http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/
 // http://math.hws.edu/graphicsbook/
 
-import getDebuggerContext from './modules/debugger'
 import LesGl from './modules/les-gl'
 import demoShader from './shaders/1-vertices'
-import {
-  SIMPLE_TRIANGLE,
-  SIMPLE_SQUARE,
-} from './modules/les-gl/geometries/types'
 
 const c = document.getElementById('c')
 
 const lesGl = new LesGl(c, demoShader, true)
-window.lesGl = lesGl
-lesGl.addGeometry({
-  type: SIMPLE_TRIANGLE,
-  attributeName: 'les_position',
-})
+
+lesGl.addTriangle()
+lesGl.addSquare()
+// lesGl.render()
 
 const drawScene = (now) => {
   now *= 0.001

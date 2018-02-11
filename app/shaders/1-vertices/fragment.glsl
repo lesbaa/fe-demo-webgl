@@ -1,18 +1,6 @@
 precision mediump float;
-uniform float globalTime;
-
-void main() {
-
-  float r = 1.0;
-  float g = 1.0;
-  float b = 1.0;
-  float a = 0.5;
-  gl_FragColor = vec4(
-    r,
-    g,
-    b,
-    a
-  );
+void main(void) {
+    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 // old scool screen
