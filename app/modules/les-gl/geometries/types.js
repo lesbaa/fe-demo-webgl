@@ -1,0 +1,2 @@
+export const SIMPLE_TRIANGLE = 'SIMPLE_TRIANGLE'
+export const SIMPLE_SQUARE = 'SIMPLE_SQAURE'

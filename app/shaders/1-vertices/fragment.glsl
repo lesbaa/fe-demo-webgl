@@ -1,29 +1,12 @@
 precision mediump float;
 uniform float globalTime;
-varying vec3 v_textcoord;
-uniform sampler2D u_image;
-uniform sampler2D u_map;
-varying float sint;
-varying float cost;
-
-float random(vec2 c){
-  return fract(sin(dot( c.xy, vec2(12.9898,78.233))) * 43758.5453);
-}
 
 void main() {
-  float texPositionX = v_textcoord.x;
-  float texPositionY = v_textcoord.y;
 
-  vec2 mapPosition = vec2(texPositionX, texPositionY);
-  vec4 mapPixel = texture2D(u_map, mapPosition);
-
-  vec2 texPosition = vec2(texPositionX, texPositionY);
-  vec4 texturePixel = texture2D(u_image, texPosition);
-
-  float r = texturePixel.x;
-  float g = texturePixel.y;
-  float b = texturePixel.z;
-  float a = texturePixel.w;
+  float r = 1.0;
+  float g = 1.0;
+  float b = 1.0;
+  float a = 0.5;
   gl_FragColor = vec4(
     r,
     g,
@@ -33,6 +16,9 @@ void main() {
 }
 
 // old scool screen
+// float random(vec2 c){
+//   return fract(sin(dot( c.xy, vec2(12.9898,78.233))) * 43758.5453);
+// }
 // void main() {
 //   float texPositionX = v_textcoord.x;
 //   float texPositionY = v_textcoord.y;
