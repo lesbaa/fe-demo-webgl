@@ -13,10 +13,10 @@
  *  prism,
  *  bucky ball,
  * 
- * fix camera stuff for fragement shaders
+ * fix camera stuff for fragement shaders, try and use gl_FragCoord instead of uv
  * 
  * named geometries, supply id / name, make it easier to access.
- * 
+ * ability to edit geometry on the fly. buffer data every frame for certain geometries?
  * add textures
  * 
  * different materials? switching shaders for different objects
