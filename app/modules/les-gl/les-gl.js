@@ -110,7 +110,7 @@ export default class {
     this.gl.linkProgram(shaderProgram)
     
     if (!this.gl.getProgramParameter(shaderProgram, this.gl.LINK_STATUS)) {
-      alert('Could not initialise shaders')
+      console.error('initProgram: Could not initialise shaders')
     }
     
     this.gl.useProgram(shaderProgram)
