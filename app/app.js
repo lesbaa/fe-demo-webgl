@@ -9,9 +9,10 @@
 /**
  * TODO
  * more geometries -
- *  cube,
  *  prism,
- *  bucky ball,
+ *  bucky ball, // maybe get the guys to build these?
+ *  
+ * constructor options, clear color etc
  * 
  * fix camera stuff for fragement shaders, try and use gl_FragCoord instead of uv
  * 
@@ -59,7 +60,7 @@ const drawScene = (now) => {
     geometry.rotation.x += 1
     geometry.rotation.y += 1
     geometry.rotation.z += 1
-    // console.log(geometry.rotation)
+    geometry.position.z = -10 + Math.sin(now / 1.4) * 6
   }
   lesGl.render()
 }

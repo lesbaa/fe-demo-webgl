@@ -10,9 +10,9 @@ void main(void) {
         float a = 1.0;
 
     gl_FragColor = vec4(
-        r * 1.0 - (uv.z / 5.5),
-        g * 1.0 - (uv.z / 5.5),
-        b * 1.0 - (uv.z / 5.5),
+        r * 1.0 - (uv.z / 6.5),
+        g * 1.0 - (uv.z / 6.5),
+        b * 1.0 - (uv.z / 6.5),
         a
     );
 }

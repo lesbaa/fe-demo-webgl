@@ -37,7 +37,7 @@ export default class {
       console.error('Could not initialise WebGL, sorry :-(')
       return
     }
-    this.gl.clearColor(0.1, 0.1, 0.1, 1.0)
+    this.gl.clearColor(0.0, 0.0, 0.0, 1.0)
     this.gl.enable(this.gl.DEPTH_TEST)
     this.setShaders(shader) // move stuff to an init method
     window.addEventListener('resize', this.handleResize)
