@@ -1,12 +1,20 @@
 precision highp float;
 varying vec4 uv;
-varying mat4 uMVMat;
-varying mat4 uPMat;
+uniform float globalTime;
 
 void main(void) {
-  
-    vec4 depthOffset = uMVMat * uPMat * vec4(1.0, 1.0, 1.0, 1.0);
-    gl_FragColor = (1.0 - depthOffset.z / 8.0) * vec4(1.0, 1.0, 1.0, 1.0);
+
+        float r = 1.0;
+        float g = 1.0;
+        float b = 1.0;
+        float a = 1.0;
+
+    gl_FragColor = vec4(
+        r * 1.0 - (uv.z / 7.0),
+        g * 1.0 - (uv.z / 7.0),
+        b * 1.0 - (uv.z / 7.0),
+        a * 1.0 - (uv.z / 7.0)
+    );
 }
 
 // old scool screen
