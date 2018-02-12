@@ -21,6 +21,11 @@ export default function({
         z,
       },
       glPrimitive: this.gl.TRIANGLE_STRIP,
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     }
   }
 }

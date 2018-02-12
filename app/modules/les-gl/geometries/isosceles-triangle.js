@@ -20,6 +20,11 @@ export default function({
         z,
       },
       glPrimitive: this.gl.TRIANGLES,
+      rotation: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
     }
   }
 }
