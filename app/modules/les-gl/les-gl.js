@@ -29,7 +29,7 @@ export default class {
         : canvas.getContext('webgl')
       this.canvas = canvas
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
     if (!this.gl) {
       console.error('Could not initialise WebGL, sorry :-(')
@@ -96,6 +96,7 @@ export default class {
       uniforms,
       attributes,
     }
+
     this.initProgram()
   }
 
@@ -110,7 +111,7 @@ export default class {
     this.gl.linkProgram(shaderProgram)
     
     if (!this.gl.getProgramParameter(shaderProgram, this.gl.LINK_STATUS)) {
-      alert('Could not initialise shaders')
+      console.error('Could not initialise shaders')
     }
     
     this.gl.useProgram(shaderProgram)
@@ -122,20 +123,56 @@ export default class {
     
     this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
 
-    this.shader.uniforms.pMatrixUniform = {
+    this.shader.uniforms.uPMatrix = {
       location: this.gl.getUniformLocation(shaderProgram, 'uPMatrix'),
     }
     
-    this.shader.uniforms.mvMatrixUniform = {
+    this.shader.uniforms.uMVMatrix = {
       location: this.gl.getUniformLocation(shaderProgram, 'uMVMatrix'),
     }
+    
+    this.initUniforms()
+    
   }
 
+  initUniforms = () => {
+    const {
+      uniforms,
+    } = this.shader
+    
+    const uniformKeys = Object.keys(uniforms)
+    
+    for (let i = 0; i < uniformKeys.length; i++) {
+      const key = uniformKeys[i]
+      if (![
+        'uMVMatrix',
+        'uPMatrix',
+      ].includes(key)) {
+        console.log(key)
+        console.log(this.shader.uniforms[key])
+        this.shader.uniforms[key].location = this.gl.getUniformLocation(this.shader.program, key)
+      }
+    }
+  }
   // add another method for updating uniforms
 
   setMatrixUniforms = () => { 
-    this.gl.uniformMatrix4fv(this.shader.uniforms.pMatrixUniform.location, false, this.pMatrix)
-    this.gl.uniformMatrix4fv(this.shader.uniforms.mvMatrixUniform.location, false, this.mvMatrix)
+    this.gl.uniformMatrix4fv(this.shader.uniforms.uPMatrix.location, false, this.pMatrix)
+    this.gl.uniformMatrix4fv(this.shader.uniforms.uMVMatrix.location, false, this.mvMatrix)
+  }
+  
+  setUniforms = () => {
+    const uniformKeys = Object.keys(this.shader.uniforms)
+    for (let i = 0; i < uniformKeys.length; i++) {
+      const key = uniformKeys[i]
+      const {
+        type,
+        value,
+        location,
+      } = this.shader.uniforms[key]
+      if (type && value && location) this.gl[type](location, value)
+    }
+    return
   }
 
   addGeometry = (geometry) => {
@@ -168,6 +205,7 @@ export default class {
     // talk about perspective in here?
     mat4.perspective(this.pMatrix, 0.78, this.canvas.width / this.canvas.height, 0.1, 100.0)
     mat4.identity(this.mvMatrix)
+    this.setUniforms()
 
     for (let i = 0; i < this.geometries.length; i++) {
       const geometry = this.geometries[i]
@@ -181,7 +219,7 @@ export default class {
         0,
         0
       )
-      this.setMatrixUniforms()      
+      this.setMatrixUniforms()
       this.gl.drawArrays(geometry.glPrimitive, 0, geometry.rows, 0)
     }
   }

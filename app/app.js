@@ -13,6 +13,8 @@
  *  prism,
  *  bucky ball,
  * 
+ * fix camera stuff for fragement shaders
+ * 
  * named geometries, supply / name, make it easier to access.
  * 
  * add + manipulate uniforms
@@ -44,15 +46,21 @@ lesGl.addGeometry(
 )
 // lesGl.addSquare()
 // lesGl.render()
+let clikCb
 
 const drawScene = (now) => {
-  now *= 0.001 
+  now *= 0.001
+  lesGl.shader.uniforms.globalTime.value = now
   for (let i = 0; i < lesGl.geometries.length; i++) {
-    const geometry = lesGl.geometries[i]
-    geometry.position.z = -5 + Math.sin(now * 3)
+    // const geometry = lesGl.geometries[i]
+    // geometry.position.z = -5 + Math.sin(now * 3)
   }
   lesGl.render()
   requestAnimationFrame(drawScene)
 }
 
 drawScene(0.0)
+
+window.addEventListener('click', () => {
+  console.log(lesGl.shader)
+})

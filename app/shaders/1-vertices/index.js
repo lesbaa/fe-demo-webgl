@@ -8,7 +8,7 @@ export default {
       value: 1.0,
     },
   },
-  attributes: {},  
+  attributes: {},
   v: vShaderSrc,
   f: fShaderSrc,
 }      
