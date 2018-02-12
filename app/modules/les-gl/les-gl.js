@@ -154,7 +154,6 @@ export default class {
       }
     }
   }
-  // add another method for updating uniforms
 
   setMatrixUniforms = () => { 
     this.gl.uniformMatrix4fv(this.shader.uniforms.uPMatrix.location, false, this.pMatrix)

@@ -8,10 +8,10 @@ export default function({
   return function() {
     return {
       vertices: [
-         w,   h,   0,
-        -w,   h,   0,
-         w,  -h,   0,
-        -w,  -h,   0,
+         w/2,   h/2,   0,
+        -w/2,   h/2,   0,
+         w/2,  -h/2,   0,
+        -w/2,  -h/2,   0,
       ],
       cols: 3,
       rows: 4,
