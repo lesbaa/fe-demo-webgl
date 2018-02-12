@@ -148,8 +148,6 @@ export default class {
         'uMVMatrix',
         'uPMatrix',
       ].includes(key)) {
-        console.log(key)
-        console.log(this.shader.uniforms[key])
         this.shader.uniforms[key].location = this.gl.getUniformLocation(this.shader.program, key)
       }
     }

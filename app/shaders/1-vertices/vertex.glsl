@@ -5,9 +5,9 @@ varying vec4 uv;
 uniform float globalTime;
 void main() {
     gl_Position = uPMatrix * uMVMatrix * vec4(
-      aVertexPosition.x + sin(globalTime),
-      aVertexPosition.y + cos(globalTime),
-      aVertexPosition.z + sin(globalTime),
+      aVertexPosition.x,
+      aVertexPosition.y,
+      aVertexPosition.z,
       1.0
     );
     uv = gl_Position;
