@@ -1,9 +1,12 @@
-precision mediump float;
+precision highp float;
 varying vec4 uv;
+varying mat4 uMVMat;
+varying mat4 uPMat;
 
 void main(void) {
   
-    gl_FragColor = vec4(1.0 - uv.z / 7.0, 1.0 - uv.z / 7.0, 1.0 - uv.z / 7.0, 0.5);
+    vec4 depthOffset = uMVMat * uPMat * vec4(1.0, 1.0, 1.0, 1.0);
+    gl_FragColor = (1.0 - depthOffset.z / 8.0) * vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 // old scool screen

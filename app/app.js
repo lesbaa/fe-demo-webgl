@@ -49,11 +49,11 @@ let clikCb
 
 const drawScene = (now) => {
   now *= 0.001
-  lesGl.shader.uniforms.globalTime.value = now
-  for (let i = 0; i < lesGl.geometries.length; i++) {
-    const geometry = lesGl.geometries[i]
-    geometry.position.z = -5 + Math.sin(now * 3)
-  }
+  lesGl.shader.uniforms.globalTime.value += 0.01
+  // for (let i = 0; i < lesGl.geometries.length; i++) {
+  //   const geometry = lesGl.geometries[i]
+  //   geometry.position.z = -5 + Math.sin(now * 3)
+  // }
   lesGl.render()
   requestAnimationFrame(drawScene)
 }
