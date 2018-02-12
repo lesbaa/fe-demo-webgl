@@ -201,7 +201,7 @@ export default class {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
     
     // talk about perspective in here?
-    mat4.perspective(this.pMatrix, 0.78, this.canvas.width / this.canvas.height, 0.1, 100.0)
+    mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
     mat4.identity(this.mvMatrix)
     this.setUniforms()
 
