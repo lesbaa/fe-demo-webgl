@@ -4,6 +4,7 @@ import {
   loadImage,
   isPow2,
   isMatrixUniform,
+  degToRad,
 } from './utils'
 
 import {
@@ -19,6 +20,7 @@ export default class {
 
   mvMatrix = mat4.create()
   pMatrix = mat4.create()
+  mvMatrixStack = []
 
   geometries = []
 
@@ -180,9 +182,9 @@ export default class {
       cols,
       rows,
       position,
+      rotation,
       glPrimitive = this.gl.TRIANGLES,
     } = geometry.bind(this)()
-
     const buffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW)
@@ -192,8 +194,22 @@ export default class {
       cols,
       rows,
       position,
+      rotation,
       glPrimitive,
     })
+  }
+
+  mvPushMatrix() {
+    const copy = mat4.create()
+    // Update: mat4.set(mvMatrix, copy); mat4.set() was removed from gl-matrix, use mat4.copy().
+    mat4.copy(copy, this.mvMatrix)
+    this.mvMatrixStack.push(copy)
+  }
+  mvPopMatrix() {
+    if (this.mvMatrixStack.length == 0) {
+      throw 'Invalid popMatrix!'
+    }
+    this.mvMatrix = this.mvMatrixStack.pop()
   }
 
   render = () => {
@@ -202,12 +218,28 @@ export default class {
     
     // talk about perspective in here?
     mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
-    mat4.identity(this.mvMatrix)
     this.setUniforms()
 
     for (let i = 0; i < this.geometries.length; i++) {
+      mat4.identity(this.mvMatrix)      
       const geometry = this.geometries[i]
       mat4.translate(this.mvMatrix, this.mvMatrix, Object.values(geometry.position))
+      this.mvPushMatrix()
+      const dimensions = Object.keys(geometry.rotation)      
+      for (let j = 0; j < dimensions.length; j++) {
+        const dimension = dimensions[j]
+        const axis = [
+          1 & (dimension === 'x'),
+          1 & (dimension === 'y'),
+          1 & (dimension === 'z'),
+        ]
+        mat4.rotate(
+          this.mvMatrix,
+          this.mvMatrix,
+          degToRad(geometry.rotation[dimension]),
+          axis,
+        )
+      }
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.buffer)
       this.gl.vertexAttribPointer(
         this.shader.attributes['aVertexPosition'].location,
@@ -219,6 +251,7 @@ export default class {
       )
       this.setMatrixUniforms()
       this.gl.drawArrays(geometry.glPrimitive, 0, geometry.rows, 0)
+      this.mvPopMatrix()
     }
   }
 } // end class

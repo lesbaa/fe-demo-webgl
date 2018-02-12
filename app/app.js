@@ -28,33 +28,40 @@ import demoShader from './shaders/1-vertices'
 import {
   rect,
   isoscelesTriangle,
+  cube,
 } from './modules/les-gl/geometries'
 
 const c = document.getElementById('c')
 
 const lesGl = new LesGl(c, demoShader, true)
 
+
 lesGl.addGeometry(
-  rect({
+  cube({
     x: 0.0,
     y: 0.0,
     z: -5.0,
-    w: 1.0,
-    h: 1.0,
+    w: 0.5,
+    h: 0.5,
+    d: 0.5,
   })
 )
+
 // lesGl.addSquare()
 // lesGl.render()
 
 const drawScene = (now) => {
+  requestAnimationFrame(drawScene)
   now *= 0.001
   lesGl.shader.uniforms.globalTime.value += 0.01
-  // for (let i = 0; i < lesGl.geometries.length; i++) {
-  //   const geometry = lesGl.geometries[i]
-  //   geometry.position.z = -5 + Math.sin(now * 3)
-  // }
+  for (let i = 0; i < lesGl.geometries.length; i++) {
+    const geometry = lesGl.geometries[i]
+    geometry.rotation.x += 1
+    geometry.rotation.y += 1
+    geometry.rotation.z += 1
+    // console.log(geometry.rotation)
+  }
   lesGl.render()
-  requestAnimationFrame(drawScene)
 }
 
 drawScene(0.0)
