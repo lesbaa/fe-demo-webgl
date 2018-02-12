@@ -35,17 +35,16 @@ const c = document.getElementById('c')
 const lesGl = new LesGl(c, demoShader, true)
 
 lesGl.addGeometry(
-  isoscelesTriangle({
+  rect({
     x: 0.0,
     y: 0.0,
     z: -5.0,
-    w: 2.0,
+    w: 1.0,
     h: 1.0,
   })
 )
 // lesGl.addSquare()
 // lesGl.render()
-let clikCb
 
 const drawScene = (now) => {
   now *= 0.001
