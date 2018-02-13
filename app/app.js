@@ -14,11 +14,13 @@
  *  
  * constructor options, clear color etc
  * 
- * fix camera stuff for fragement shaders, try and use gl_FragCoord instead of uv
+ * use cameras
  * 
  * named geometries, supply id / name, make it easier to access.
  * ability to edit geometry on the fly. buffer data every frame for certain geometries?
  * add textures
+ * 
+ * load multiple shaders
  * 
  * different materials? switching shaders for different objects
  */
@@ -34,7 +36,10 @@ import {
 
 const c = document.getElementById('c')
 
-const lesGl = new LesGl(c, demoShader, true)
+const lesGl = new LesGl(c, demoShader, {
+  debug: true,
+  clearColor: [0, 0, 0, 1.0],
+})
 
 
 lesGl.addGeometry(

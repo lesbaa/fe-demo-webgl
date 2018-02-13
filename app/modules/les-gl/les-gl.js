@@ -24,7 +24,10 @@ export default class {
 
   geometries = []
 
-  constructor(canvas, shader, debug) { // you should probably pass an options object
+  constructor(canvas, shader, {
+    debug,
+    clearColor,
+  }) { // you should probably pass an options object
     try {
       this.gl = debug
         ? getDebuggerContext(canvas.getContext('webgl'))
@@ -37,7 +40,7 @@ export default class {
       console.error('Could not initialise WebGL, sorry :-(')
       return
     }
-    this.gl.clearColor(0.0, 0.0, 0.0, 1.0)
+    this.gl.clearColor(...clearColor)
     this.gl.enable(this.gl.DEPTH_TEST)
     this.setShaders(shader) // move stuff to an init method
     window.addEventListener('resize', this.handleResize)
