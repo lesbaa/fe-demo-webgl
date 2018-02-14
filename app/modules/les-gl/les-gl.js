@@ -125,8 +125,10 @@ export default class {
     this.shader.attributes['aVertexPosition'] = {
       location: this.gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
     }
-    
-    this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
+
+    this.shader.attributes['aTextureCoord'] = {
+      location: this.gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
+    }
 
     this.shader.uniforms.uPMatrix = {
       location: this.gl.getUniformLocation(shaderProgram, 'uPMatrix'),
@@ -134,6 +136,10 @@ export default class {
     
     this.shader.uniforms.uMVMatrix = {
       location: this.gl.getUniformLocation(shaderProgram, 'uMVMatrix'),
+    }
+    
+    this.shader.uniforms.uSampler = {
+      location: this.gl.getUniformLocation(shaderProgram, 'uSampler'),
     }
     
     this.initUniforms()
@@ -185,6 +191,7 @@ export default class {
       rows,
       position,
       rotation,
+      textureMap,
       glPrimitive = this.gl.TRIANGLES,
     } = geometry.bind(this)()
     const positionBuffer = this.gl.createBuffer()
@@ -192,6 +199,7 @@ export default class {
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW)
     this.geometries[useId] = {
       positionBuffer,
+      textureMap,
       vertices,
       cols,
       rows,
@@ -260,7 +268,9 @@ export default class {
     this.textures[id] = texture
   }
   
-  applyTexture(geometry) {
+  applyTexture(geometryId) {
+    const geometry = this.geometries[geometryId]
+    console.log(geometry)
     const textureCoordBuffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, textureCoordBuffer)
 
@@ -270,9 +280,12 @@ export default class {
       this.gl.STATIC_DRAW,
     )
 
+    this.geometries[geometryId] = {
+      ...geometry,
+      textureCoordBuffer,
+    }
     // Build the element array buffer; this specifies the indices
     // into the vertex arrays for each face's vertices.
-
   }
 
   mvPushMatrix() {
@@ -288,7 +301,7 @@ export default class {
     this.mvMatrix = this.mvMatrixStack.pop()
   }
 
-  render = () => {
+  render = (now) => {
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height)
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
     
@@ -296,7 +309,9 @@ export default class {
     mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
     this.setUniforms()
     const geometryKeys = Object.keys(this.geometries)
+
     for (let i = 0; i < geometryKeys.length; i++) {
+
       mat4.identity(this.mvMatrix)
       const key = geometryKeys[i]
       const geometry = this.geometries[key]
@@ -317,7 +332,10 @@ export default class {
           axis,
         )
       }
+      if (now > 0.001 && now < 0.5) console.log(this.geometries)
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.positionBuffer)
+      this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
+  
       this.gl.vertexAttribPointer(
         this.shader.attributes['aVertexPosition'].location,
         geometry.cols,
@@ -326,9 +344,24 @@ export default class {
         0,
         0
       )
+      
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.textureCoordBuffer)
+      this.gl.enableVertexAttribArray(this.shader.attributes['aTextureCoord'].location)
+
+      this.gl.vertexAttribPointer(
+        this.shader.attributes['aTextureCoord'].location,
+        geometry.tRows,
+        this.gl.FLOAT,
+        false,
+        0,
+        0
+      )
+
       this.setMatrixUniforms()
       this.gl.drawArrays(geometry.glPrimitive, 0, geometry.rows, 0)
       this.mvPopMatrix()
+
     }
+    
   }
 } // end class

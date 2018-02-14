@@ -1,8 +1,11 @@
 attribute vec3 aVertexPosition;
+attribute vec2 aTextureCoord;
+
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 uniform float globalTime;
 varying vec4 uv;
+varying highp vec2 vTextureCoord;
 
 void main() {
     float x = aVertexPosition.x;
@@ -20,5 +23,6 @@ void main() {
         1.0
     );
 
+    vTextureCoord = aTextureCoord;
     uv = gl_Position;
 }

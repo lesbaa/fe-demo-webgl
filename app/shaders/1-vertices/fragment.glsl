@@ -1,21 +1,27 @@
 precision highp float;
 varying vec4 uv;
 uniform float globalTime;
+varying highp vec2 vTextureCoord;
+uniform sampler2D uSampler;
 
 void main(void) {
-
-        float r = 1.0;
-        float g = 1.0;
-        float b = 1.0;
-        float a = 1.0;
-
-    gl_FragColor = vec4(
-        r * 1.0 - (uv.z / 6.5),
-        g * 1.0 - (uv.z / 6.5),
-        b * 1.0 - (uv.z / 6.5),
-        a
-    );
+  gl_FragColor = texture2D(uSampler, vTextureCoord);
 }
+
+// void main(void) {
+
+//         float r = 1.0;
+//         float g = 1.0;
+//         float b = 1.0;
+//         float a = 1.0;
+
+//     gl_FragColor = vec4(
+//         r * 1.0 - (uv.z / 6.5),
+//         g * 1.0 - (uv.z / 6.5),
+//         b * 1.0 - (uv.z / 6.5),
+//         a
+//     );
+// }
 
 // old scool screen
 // float random(vec2 c){

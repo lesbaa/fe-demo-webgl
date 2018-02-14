@@ -55,6 +55,7 @@ lesGl.addGeometry(
   'cube-1',
 )
 
+lesGl.applyTexture('cube-1')
 // lesGl.addSquare()
 // lesGl.render()
 
@@ -69,7 +70,7 @@ const drawScene = (now) => {
   geometry.rotation.y += 1
   geometry.rotation.z += 1
   geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
-  lesGl.render()
+  lesGl.render(now)
 }
 
 drawScene(0.0)
