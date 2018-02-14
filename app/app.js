@@ -65,7 +65,7 @@ const drawScene = (now) => {
     geometry.rotation.x += 1
     geometry.rotation.y += 1
     geometry.rotation.z += 1
-    geometry.position.z = -10 + Math.sin(now / 1.4) * 6
+    geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
   }
   lesGl.render()
 }
