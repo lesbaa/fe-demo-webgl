@@ -36,7 +36,7 @@ import {
 
 const c = document.getElementById('c')
 
-const lesGl = new LesGl(c, demoShader, {
+window.lesGl = new LesGl(c, demoShader, {
   debug: true,
   clearColor: [0, 0, 0, 1.0],
 })

@@ -1,3 +1,4 @@
+precision highp float;
 attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
 

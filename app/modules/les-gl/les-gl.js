@@ -1,5 +1,7 @@
 // https://stackoverflow.com/questions/13009328/drawing-many-shapes-in-webgl
 
+// https://stackoverflow.com/questions/19102180/how-does-gldrawarrays-know-what-to-draw#19102301
+
 import {
   loadImage,
   isPow2,
@@ -192,6 +194,8 @@ export default class {
       position,
       rotation,
       textureMap,
+      tRows,
+      tCols,
       glPrimitive = this.gl.TRIANGLES,
     } = geometry.bind(this)()
     const positionBuffer = this.gl.createBuffer()
@@ -199,10 +203,12 @@ export default class {
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW)
     this.geometries[useId] = {
       positionBuffer,
-      textureMap,
       vertices,
       cols,
       rows,
+      textureMap,
+      tRows,
+      tCols,
       position,
       rotation,
       glPrimitive,
@@ -350,7 +356,7 @@ export default class {
 
       this.gl.vertexAttribPointer(
         this.shader.attributes['aTextureCoord'].location,
-        geometry.tRows,
+        geometry.tCols,
         this.gl.FLOAT,
         false,
         0,
