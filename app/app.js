@@ -50,23 +50,25 @@ lesGl.addGeometry(
     w: 1.5,
     h: 1.5,
     d: 1.5,
-  })
+    textureId: 'doge',
+  }),
+  'cube-1',
 )
 
 // lesGl.addSquare()
 // lesGl.render()
 
+lesGl.loadTexture('./assets/doge.jpeg', 'doge')
+
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
   lesGl.shader.uniforms.globalTime.value += 0.01
-  for (let i = 0; i < lesGl.geometries.length; i++) {
-    const geometry = lesGl.geometries[i]
-    geometry.rotation.x += 1
-    geometry.rotation.y += 1
-    geometry.rotation.z += 1
-    geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
-  }
+  const geometry = lesGl.geometries['cube-1']
+  geometry.rotation.x += 1
+  geometry.rotation.y += 1
+  geometry.rotation.z += 1
+  geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
   lesGl.render()
 }
 
