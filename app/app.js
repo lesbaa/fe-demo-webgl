@@ -11,14 +11,16 @@
  * more geometries -
  *  prism,
  *  bucky ball, // maybe get the guys to build these?
- *  
- * constructor options, clear color etc
  * 
  * use cameras
  * 
- * named geometries, supply id / name, make it easier to access.
+ * lighting
+ * 
  * ability to edit geometry on the fly. buffer data every frame for certain geometries?
- * add textures
+ * 
+ * load multiple textures
+ * 
+ * dat.guid and stats
  * 
  * load multiple shaders
  * 
@@ -36,7 +38,7 @@ import {
 
 const c = document.getElementById('c')
 
-window.lesGl = new LesGl(c, demoShader, {
+const lesGl = new LesGl(c, demoShader, {
   debug: true,
   clearColor: [0, 0, 0, 1.0],
 })
@@ -61,15 +63,17 @@ lesGl.applyTexture('cube-1')
 
 lesGl.loadTexture('./assets/doge.jpeg', 'doge')
 
+const geometry = lesGl.geometries['cube-1']
+
+
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
   lesGl.shader.uniforms.globalTime.value += 0.01
-  const geometry = lesGl.geometries['cube-1']
+  geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
   geometry.rotation.x += 1
   geometry.rotation.y += 1
   geometry.rotation.z += 1
-  geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
   lesGl.render(now)
 }
 

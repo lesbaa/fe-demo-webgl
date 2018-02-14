@@ -1,3 +1,6 @@
+// with the texture map we're telling webgl how to map the texture to each vertex
+// where 0.0 
+
 export default function({
   w = 1.0,
   h = 1.0,
@@ -41,36 +44,35 @@ export default function({
          w/2,  h/2,  d/2,
       ],
       textureMap: [
-        // Front
-        0.0,  0.0,
-        1.0,  0.0,
         1.0,  1.0,
         0.0,  1.0,
-        // Back
-        0.0,  0.0,
         1.0,  0.0,
+        0.0,  0.0,
+
         1.0,  1.0,
         0.0,  1.0,
-        // Top
-        0.0,  0.0,
         1.0,  0.0,
+        0.0,  0.0,
+
         1.0,  1.0,
         0.0,  1.0,
-        // Bottom
-        0.0,  0.0,
         1.0,  0.0,
+        0.0,  0.0,
+
         1.0,  1.0,
         0.0,  1.0,
-        // Right
-        0.0,  0.0,
         1.0,  0.0,
+        0.0,  0.0,
+
         1.0,  1.0,
         0.0,  1.0,
-        // Left
-        0.0,  0.0,
         1.0,  0.0,
+        0.0,  0.0,
+
         1.0,  1.0,
         0.0,  1.0,
+        1.0,  0.0,
+        0.0,  0.0,
       ],
       tCols: 2,
       tRows: 24,

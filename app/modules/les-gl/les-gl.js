@@ -276,7 +276,6 @@ export default class {
   
   applyTexture(geometryId) {
     const geometry = this.geometries[geometryId]
-    console.log(geometry)
     const textureCoordBuffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, textureCoordBuffer)
 
@@ -338,7 +337,6 @@ export default class {
           axis,
         )
       }
-      if (now > 0.001 && now < 0.5) console.log(this.geometries)
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.positionBuffer)
       this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
   

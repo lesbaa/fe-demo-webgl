@@ -5,7 +5,25 @@ varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
 
 void main(void) {
-  gl_FragColor = texture2D(uSampler, vTextureCoord);
+  vec4 texColor = texture2D(
+    uSampler,
+    vec2(
+      vTextureCoord.x,
+      vTextureCoord.y
+    )
+  );
+  
+  float r = texColor.x;
+  float g = texColor.y;
+  float b = texColor.z;
+  float a = texColor.w;
+
+  gl_FragColor = vec4(
+    r * 1.0 - (uv.z / 10.0),
+    g * 1.0 - (uv.z / 10.0),
+    b * 1.0 - (uv.z / 10.0),
+    a
+  );
 }
 
 // void main(void) {

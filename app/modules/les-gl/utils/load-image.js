@@ -3,7 +3,7 @@ const loadImage = (imageUrl) => {
     const img = new Image()
     img.src = imageUrl
     img.addEventListener('load', () => {
-      console.log(img.width, img.height)
+      console.log(`Image dimensions: ${img.width} x ${img.height}`)
       res(img)
     })
     img.addEventListener('error', (e) => {
