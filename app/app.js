@@ -8,23 +8,18 @@
 
 /**
  * TODO
- * more geometries -
+ * - more geometries -
  *  prism,
  *  bucky ball, // maybe get the guys to build these?
  * 
- * use cameras
- * 
- * lighting
- * 
- * ability to edit geometry on the fly. buffer data every frame for certain geometries?
- * 
- * load multiple textures
- * 
- * dat.guid and stats
- * 
- * load multiple shaders
- * 
- * different materials? switching shaders for different objects
+ * - maybe should be 'objects' instead of geometries
+ * - cameras
+ * - lighting
+ * - ability to edit geometry on the fly. buffer data every frame for certain geometries?
+ * - load multiple textures, use different textures for different objects
+ * - dat.guid and stats
+ * - load multiple shaders and switch during animation
+ * - different materials? switching shaders for different objects
  */
 
 import LesGl from './modules/les-gl'
