@@ -1,6 +1,6 @@
 const loadVideo = (url) => {
   return new Promise((res, rej) => {
-    
+    console.log('Loading video:', url, '...')
     const video = document.createElement('video')
     
     video.src = url
@@ -11,11 +11,11 @@ const loadVideo = (url) => {
     // document.body.appendChild(video)
 
     video.addEventListener('canplay', () => {
-      console.info('video can play!')
+      console.log('Video loaded:', url)
       res(video)
     })
     video.addEventListener('error', (e) => {
-      console.error('video load error', video.error.message)
+      console.error('Error Loading Video:', url, video.error.message)
       rej(video)
     })
   })
