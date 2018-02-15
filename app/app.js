@@ -66,16 +66,50 @@ lesGl.applyTexture('cube-1')
 
 const geometry = lesGl.geometries['cube-1']
 
+const {
+ width,
+ height,
+} = c
+
+let accelX = 0
+let accelY = 0
+let accelZ = 0
 
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
   lesGl.shader.uniforms.globalTime.value += 0.01
   geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
-  geometry.rotation.x += 1
-  geometry.rotation.y += 1
-  geometry.rotation.z += 1
+  geometry.rotation.x += accelX
+  geometry.rotation.y += accelY
+  geometry.rotation.z += accelZ
   lesGl.render(now)
 }
+
+window.addEventListener('keydown', ({ code }) => {
+  switch (code) {
+    case 'ArrowUp': {
+      accelX += 1
+      break
+    }
+    case 'ArrowRight': {
+      accelZ += 1
+      break
+    }
+    case 'ArrowDown': {
+      accelX -= 1
+      break
+    }
+    case 'ArrowLeft': {
+      accelZ -= 1
+      break
+    }
+
+    default: {
+      return
+    }
+      
+  }
+})
 
 drawScene(0.0)
