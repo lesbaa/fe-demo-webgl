@@ -23,7 +23,7 @@
  */
 
 import LesGl from './modules/les-gl'
-import demoShader from './shaders/1-vertices'
+import demoShader from './shaders/one'
 
 import {
   rect,
@@ -33,11 +33,10 @@ import {
 
 const c = document.getElementById('c')
 
-window.lesGl = new LesGl(c, demoShader, {
+const lesGl = new LesGl(c, demoShader, {
   debug: true,
   clearColor: [0, 0, 0, 1.0],
 })
-
 
 lesGl.addGeometry(
   cube({
