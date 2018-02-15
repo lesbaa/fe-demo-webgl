@@ -33,7 +33,7 @@ import {
 
 const c = document.getElementById('c')
 
-const lesGl = new LesGl(c, demoShader, {
+window.lesGl = new LesGl(c, demoShader, {
   debug: true,
   clearColor: [0, 0, 0, 1.0],
 })
@@ -47,16 +47,23 @@ lesGl.addGeometry(
     w: 1.5,
     h: 1.5,
     d: 1.5,
-    textureId: 'doge',
+    textureId: 'movie-1',
   }),
   'cube-1',
 )
+
+lesGl.loadTexture({
+  url: './assets/mov.mov',
+  id: 'movie-1',
+  type: 'video',
+})
 
 lesGl.applyTexture('cube-1')
 // lesGl.addSquare()
 // lesGl.render()
 
-lesGl.loadTexture('./assets/doge.jpeg', 'doge')
+// lesGl.loadTexture('./assets/doge.jpeg', 'doge')
+
 
 const geometry = lesGl.geometries['cube-1']
 

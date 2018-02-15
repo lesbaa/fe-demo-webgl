@@ -4,6 +4,7 @@
 
 import {
   loadImage,
+  loadVideo,
   isPow2,
   isMatrixUniform,
   degToRad,
@@ -24,6 +25,7 @@ export default class {
   pMatrix = mat4.create()
   mvMatrixStack = []
   textures = {}
+  videos = {}
   geometries = {}
 
   constructor(canvas, shader, {
@@ -215,10 +217,13 @@ export default class {
     }
   }
   
-  loadTexture = async (url, id) => {
+  loadTexture = async ({
+    url,
+    id = url,
+    type = 'img',
+  }) => {
     const texture = this.gl.createTexture()
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-  
     // Because images have to be download over the internet
     // they might take a moment until they are ready.
     // Until then put a single pixel in the texture so we can
@@ -244,9 +249,58 @@ export default class {
       srcType,
       pixel,
     )
+    if (type === 'img') {
+      
+      const image = await loadImage(url)
   
-    const image = await loadImage(url)
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D,
+        level,
+        internalFormat,
+        srcFormat,
+        srcType,
+        image
+      )
+      // WebGL1 has different requirements for power of 2 images
+      // vs non power of 2 images so check if the image is a
+      // power of 2 in both dimensions.
+      if (isPow2(image.width) && isPow2(image.height)) {
+        // Yes, it's a power of 2. Generate mips.
+        this.gl.generateMipmap(this.gl.TEXTURE_2D)
+      } else {
+        // No, it's not a power of 2. Turn on mips and set
+        // wrapping to clamp to edge
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR)
+      }
+    }
+    
+    if (type === 'video') {
+      try {
+        const video = await loadVideo(url)
+        video.play()
 
+        this.videos[id] = video
+        
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR)
+      } catch (e) {
+        console.error('video loading error: ', e)
+      }
+    }
+
+
+    this.textures[id] = texture
+  }
+  
+  updateTexture = (texture, video) => {
+    const level = 0
+    const internalFormat = this.gl.RGBA
+    const srcFormat = this.gl.RGBA
+    const srcType = this.gl.UNSIGNED_BYTE
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
@@ -254,24 +308,8 @@ export default class {
       internalFormat,
       srcFormat,
       srcType,
-      image
+      video,
     )
-
-    // WebGL1 has different requirements for power of 2 images
-    // vs non power of 2 images so check if the image is a
-    // power of 2 in both dimensions.
-    if (isPow2(image.width) && isPow2(image.height)) {
-      // Yes, it's a power of 2. Generate mips.
-      this.gl.generateMipmap(this.gl.TEXTURE_2D)
-    } else {
-      // No, it's not a power of 2. Turn on mips and set
-      // wrapping to clamp to edge
-      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
-      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
-      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR)
-    }
-
-    this.textures[id] = texture
   }
   
   applyTexture(geometryId) {
@@ -313,8 +351,22 @@ export default class {
     // talk about perspective in here?
     mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
     this.setUniforms()
+    
+    const textureKeys = Object.keys(this.textures)
+    
+    for(let i = 0; i < textureKeys.length; i++) {
+      // could this be object.values?
+      const textureKey = textureKeys[i]
+      const texture = this.textures[textureKey]
+      const video = this.videos[textureKey]
+      if (video) {
+        this.updateTexture(texture, video)
+      }
+      
+    }
+    
     const geometryKeys = Object.keys(this.geometries)
-
+    
     for (let i = 0; i < geometryKeys.length; i++) {
 
       mat4.identity(this.mvMatrix)
@@ -337,6 +389,7 @@ export default class {
           axis,
         )
       }
+
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.positionBuffer)
       this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
   
