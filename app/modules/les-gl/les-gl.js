@@ -24,6 +24,7 @@ export default class {
   mvMatrix = mat4.create()
   pMatrix = mat4.create()
   mvMatrixStack = []
+  glLastCreatedTexture = 0
   textures = {}
   videos = {}
   geometries = {}
@@ -223,12 +224,14 @@ export default class {
     type = 'img',
   }) => {
     const texture = this.gl.createTexture()
+    texture.glIndex = this.glLastCreatedTexture
+    
+    this.gl.activeTexture(this.gl[`TEXTURE${this.glLastCreatedTexture}`])
+    this.shader.uniforms.uSampler.value = this.glLastCreatedTexture
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-    // Because images have to be download over the internet
-    // they might take a moment until they are ready.
-    // Until then put a single pixel in the texture so we can
-    // use it immediately. When the image has finished downloading
-    // we'll update the texture with the contents of the image.
+    this.setUniforms()
+    // pop in a a single green pixel texture until the image has loaded
+
     const level = 0
     const internalFormat = this.gl.RGBA
     const width = 1
@@ -236,7 +239,7 @@ export default class {
     const border = 0
     const srcFormat = this.gl.RGBA
     const srcType = this.gl.UNSIGNED_BYTE
-    const pixel = new Uint8Array([0, 0, 255, 255])  // opaque blue
+    const pixel = new Uint8Array([50, 200, 120, 10])  // opaque blue
 
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
@@ -253,7 +256,6 @@ export default class {
       
       const image = await loadImage(url)
   
-      this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
       this.gl.texImage2D(
         this.gl.TEXTURE_2D,
         level,
@@ -301,15 +303,23 @@ export default class {
     const internalFormat = this.gl.RGBA
     const srcFormat = this.gl.RGBA
     const srcType = this.gl.UNSIGNED_BYTE
+    
+    // Tell WebGL we want to affect texture unit 0
+    this.gl.activeTexture(this.gl.TEXTURE0)
+  
+    // Tell the shader we bound the texture to texture unit 0
+    this.gl.uniform1i(this.shader.uniforms.uSampler.location, 0)
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-    this.gl.texImage2D(
-      this.gl.TEXTURE_2D,
-      level,
-      internalFormat,
-      srcFormat,
-      srcType,
-      video,
-    )
+    if (video) {
+      this.gl.texImage2D(
+        this.gl.TEXTURE_2D,
+        level,
+        internalFormat,
+        srcFormat,
+        srcType,
+        video,
+      )
+    }
   }
   
   applyTexture(geometryId) {
@@ -359,22 +369,23 @@ export default class {
       const textureKey = textureKeys[i]
       const texture = this.textures[textureKey]
       const video = this.videos[textureKey]
-      if (video) {
-        this.updateTexture(texture, video)
-      }
+      this.updateTexture(texture, video)
       
     }
     
     const geometryKeys = Object.keys(this.geometries)
     
     for (let i = 0; i < geometryKeys.length; i++) {
-
       mat4.identity(this.mvMatrix)
+      
       const key = geometryKeys[i]
       const geometry = this.geometries[key]
+      
       mat4.translate(this.mvMatrix, this.mvMatrix, Object.values(geometry.position))
       this.mvPushMatrix()
+      
       const dimensions = Object.keys(geometry.rotation)
+      
       for (let j = 0; j < dimensions.length; j++) {
         const dimension = dimensions[j]
         const axis = [
@@ -389,6 +400,14 @@ export default class {
           axis,
         )
       }
+
+      // const texture = this.textures[this.geometry.textureId]
+      // const textGlIndex = texture.glIndex
+
+      // this.gl.activeTexture(this.gl[`TEXTURE${textGlIndex}`])
+      // this.shader.uniforms.uSampler.value = textGlIndex
+      // this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+      // this.setUniforms()
 
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.positionBuffer)
       this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
@@ -413,7 +432,7 @@ export default class {
         0,
         0
       )
-
+ 
       this.setMatrixUniforms()
       this.gl.drawArrays(geometry.glPrimitive, 0, geometry.rows, 0)
       this.mvPopMatrix()

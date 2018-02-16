@@ -22,6 +22,8 @@
  * - different materials? switching shaders for different objects
  */
 
+// tidy up code, les
+
 import LesGl from './modules/les-gl'
 import demoShader from './shaders/one'
 
@@ -59,16 +61,23 @@ lesGl.addGeometry(
     w: .5,
     h: .5,
     d: .5,
-    textureId: 'movie-1',
+    textureId: 'doge-1',
   }),
   'cube-2',
 )
 
 lesGl.loadTexture({
-  url: './assets/mov.mov',
-  id: 'movie-1',
-  type: 'video',
+  url: './assets/doge.jpeg',
+  id: 'doge-1',
+  type: 'img',
 })
+
+// lesGl.loadTexture({
+//   url: './assets/mov.mov',
+//   id: 'movie-1',
+//   type: 'video',
+// })
+
 
 lesGl.applyTexture('cube-1')
 lesGl.applyTexture('cube-2')
