@@ -40,15 +40,28 @@ const lesGl = new LesGl(c, demoShader, {
 
 lesGl.addGeometry(
   cube({
-    x: 0.0,
+    x: .25,
     y: 0.0,
     z: -5.0,
-    w: 1.5,
-    h: 1.5,
-    d: 1.5,
+    w: 0.5,
+    h: 0.5,
+    d: 0.5,
     textureId: 'movie-1',
   }),
   'cube-1',
+)
+
+lesGl.addGeometry(
+  cube({
+    x: -.25,
+    y: 0.0,
+    z: -5.0,
+    w: .5,
+    h: .5,
+    d: .5,
+    textureId: 'movie-1',
+  }),
+  'cube-2',
 )
 
 lesGl.loadTexture({
@@ -58,13 +71,15 @@ lesGl.loadTexture({
 })
 
 lesGl.applyTexture('cube-1')
+lesGl.applyTexture('cube-2')
 // lesGl.addSquare()
 // lesGl.render()
 
 // lesGl.loadTexture('./assets/doge.jpeg', 'doge')
 
 
-const geometry = lesGl.geometries['cube-1']
+const geometry1 = lesGl.geometries['cube-1']
+const geometry2 = lesGl.geometries['cube-2']
 
 const {
  width,
@@ -79,10 +94,14 @@ const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
   lesGl.shader.uniforms.globalTime.value += 0.01
-  geometry.position.z = -5.5 + Math.sin(now / 1.4) * 1.5
-  geometry.rotation.x += accelX
-  geometry.rotation.y += accelY
-  geometry.rotation.z += accelZ
+  geometry1.position.z = -3.5 + Math.sin(now / 1.4) * 1.5
+  geometry2.position.z = -3.5 + Math.sin(now / 1.4) * 1.5
+  geometry1.rotation.x -= 1
+  geometry2.rotation.x += 1
+  geometry1.rotation.y -= 1
+  geometry2.rotation.y += 1
+  geometry1.rotation.z -= 1
+  geometry2.rotation.z += 1
   lesGl.render(now)
 }
 
