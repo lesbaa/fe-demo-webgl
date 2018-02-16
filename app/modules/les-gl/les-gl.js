@@ -257,7 +257,7 @@ export default class {
     if (type === 'img') {
       
       const image = await loadImage(url)
-      console.log('loaded')
+      this.updateTexture(texture)
       this.gl.texImage2D(
         this.gl.TEXTURE_2D,
         level,
@@ -300,7 +300,7 @@ export default class {
     this.textures[id] = texture
   }
   
-  updateTexture = (texture, video) => {
+  updateTexture = (texture, data) => {
     const level = 0
     const internalFormat = this.gl.RGBA
     const srcFormat = this.gl.RGBA
@@ -312,14 +312,14 @@ export default class {
     this.shader.uniforms.uSampler.value = textGlIndex
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
 
-    if (video) {
+    if (data) {
       this.gl.texImage2D(
         this.gl.TEXTURE_2D,
         level,
         internalFormat,
         srcFormat,
         srcType,
-        video,
+        data,
       )
     }
   }

@@ -40,31 +40,50 @@ const lesGl = new LesGl(c, demoShader, {
   clearColor: [0, 0, 0, 1.0],
 })
 
-lesGl.addGeometry(
-  cube({
-    x: .25,
-    y: 0.0,
-    z: -5.0,
-    w: 0.5,
-    h: 0.5,
-    d: 0.5,
-    textureId: 'movie-1',
-  }),
-  'cube-1',
-)
+// lesGl.addGeometry(
+//   cube({
+//     x: .25,
+//     y: 0.0,
+//     z: -5.0,
+//     w: 0.5,
+//     h: 0.5,
+//     d: 0.5,
+//     textureId: 'doge-2',
+//   }),
+//   'cube-1',
+// )
 
-lesGl.addGeometry(
-  cube({
-    x: -.25,
-    y: 0.0,
-    z: -5.0,
-    w: .5,
-    h: .5,
-    d: .5,
-    textureId: 'doge-1',
-  }),
-  'cube-2',
-)
+// lesGl.addGeometry(
+//   cube({
+//     x: -.25,
+//     y: 0.0,
+//     z: -5.0,
+//     w: .5,
+//     h: .5,
+//     d: .5,
+//     textureId: 'doge-1',
+//   }),
+//   'cube-2',
+// )
+
+for (let i = 0; i < 10; i++) {
+
+  const size = Math.random() * 2
+  lesGl.addGeometry(
+    cube({
+      x: 2 * (Math.random() - 0.5),
+      y: 2 * (Math.random() - 0.5),
+      z: -5,
+      w: size,
+      h: size,
+      d: size,
+      textureId: `doge-${i % 2 === 0 ? '1' : '2'}`,
+    }),
+    `cube-${i}`,
+  )
+  lesGl.applyTexture(`cube-${i}`)
+  
+}
 
 lesGl.loadTexture({
   url: './assets/doge.jpeg',
@@ -74,21 +93,16 @@ lesGl.loadTexture({
 
 lesGl.loadTexture({
   url: './assets/doge-bump.jpeg',
-  id: 'movie-1',
+  id: 'doge-2',
   type: 'img',
 })
 
 
-lesGl.applyTexture('cube-1')
-lesGl.applyTexture('cube-2')
 // lesGl.addSquare()
 // lesGl.render()
 
 // lesGl.loadTexture('./assets/doge.jpeg', 'doge')
 
-
-const geometry1 = lesGl.geometries['cube-1']
-const geometry2 = lesGl.geometries['cube-2']
 
 const {
  width,
@@ -102,15 +116,14 @@ let accelZ = 0
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
+  Object.keys(lesGl.geometries).forEach((key, i) => {
+    const wheech = (i + 1) / 3
+    const geo = lesGl.geometries[key]
+    geo.rotation.x += wheech
+    geo.rotation.y += wheech
+    geo.rotation.z += wheech
+  })
   lesGl.shader.uniforms.globalTime.value += 0.01
-  geometry1.position.z = -3.5 + Math.sin(now / 1.4) * 1.5
-  geometry2.position.z = -3.5 + Math.sin(now / 1.4) * 1.5
-  geometry1.rotation.x -= 1
-  geometry2.rotation.x += 1
-  geometry1.rotation.y -= 1
-  geometry2.rotation.y += 1
-  geometry1.rotation.z -= 1
-  geometry2.rotation.z += 1
   lesGl.render(now)
 }
 
