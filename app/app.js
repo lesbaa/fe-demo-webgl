@@ -72,11 +72,11 @@ lesGl.loadTexture({
   type: 'img',
 })
 
-// lesGl.loadTexture({
-//   url: './assets/mov.mov',
-//   id: 'movie-1',
-//   type: 'video',
-// })
+lesGl.loadTexture({
+  url: './assets/doge-bump.jpeg',
+  id: 'movie-1',
+  type: 'img',
+})
 
 
 lesGl.applyTexture('cube-1')

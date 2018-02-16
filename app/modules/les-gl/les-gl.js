@@ -197,6 +197,7 @@ export default class {
       position,
       rotation,
       textureMap,
+      textureId,
       tRows,
       tCols,
       glPrimitive = this.gl.TRIANGLES,
@@ -210,6 +211,7 @@ export default class {
       cols,
       rows,
       textureMap,
+      textureId,
       tRows,
       tCols,
       position,
@@ -255,7 +257,7 @@ export default class {
     if (type === 'img') {
       
       const image = await loadImage(url)
-  
+      console.log('loaded')
       this.gl.texImage2D(
         this.gl.TEXTURE_2D,
         level,
@@ -304,12 +306,12 @@ export default class {
     const srcFormat = this.gl.RGBA
     const srcType = this.gl.UNSIGNED_BYTE
     
-    // Tell WebGL we want to affect texture unit 0
-    this.gl.activeTexture(this.gl.TEXTURE0)
-  
-    // Tell the shader we bound the texture to texture unit 0
-    this.gl.uniform1i(this.shader.uniforms.uSampler.location, 0)
+    const textGlIndex = texture.glIndex
+
+    this.gl.activeTexture(this.gl[`TEXTURE${textGlIndex}`])
+    this.shader.uniforms.uSampler.value = textGlIndex
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+
     if (video) {
       this.gl.texImage2D(
         this.gl.TEXTURE_2D,
@@ -361,18 +363,7 @@ export default class {
     // talk about perspective in here?
     mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
     this.setUniforms()
-    
-    const textureKeys = Object.keys(this.textures)
-    
-    for(let i = 0; i < textureKeys.length; i++) {
-      // could this be object.values?
-      const textureKey = textureKeys[i]
-      const texture = this.textures[textureKey]
-      const video = this.videos[textureKey]
-      this.updateTexture(texture, video)
-      
-    }
-    
+        
     const geometryKeys = Object.keys(this.geometries)
     
     for (let i = 0; i < geometryKeys.length; i++) {
@@ -401,13 +392,16 @@ export default class {
         )
       }
 
-      // const texture = this.textures[this.geometry.textureId]
-      // const textGlIndex = texture.glIndex
-
-      // this.gl.activeTexture(this.gl[`TEXTURE${textGlIndex}`])
-      // this.shader.uniforms.uSampler.value = textGlIndex
-      // this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-      // this.setUniforms()
+      const texture = this.textures[geometry.textureId]
+      // debugger
+      if (texture) {
+        const textGlIndex = texture.glIndex
+  
+        this.gl.activeTexture(this.gl[`TEXTURE${textGlIndex}`])
+        this.shader.uniforms.uSampler.value = textGlIndex
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+        this.setUniforms()
+      }
 
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.positionBuffer)
       this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
