@@ -25,6 +25,7 @@
 // tidy up code, les
 
 import LesGl from './modules/les-gl'
+import Stats from './modules/stats'
 import demoShader from './shaders/one'
 
 import {
@@ -113,6 +114,13 @@ let accelX = 0
 let accelY = 0
 let accelZ = 0
 
+const stats = new Stats()
+
+document.body.appendChild(
+  document.createElement('div').appendChild(stats.dom)
+)
+
+
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
@@ -125,6 +133,7 @@ const drawScene = (now) => {
   })
   lesGl.shader.uniforms.globalTime.value += 0.01
   lesGl.render(now)
+  stats.update()
 }
 
 window.addEventListener('keydown', ({ code }) => {
