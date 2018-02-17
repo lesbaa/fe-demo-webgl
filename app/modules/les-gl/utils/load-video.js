@@ -8,10 +8,11 @@ const loadVideo = (url) => {
     video.loop = true
 
     video.addEventListener('canplay', () => {
+      console.log('Video loaded from: ', url)
       res(video)
     })
     video.addEventListener('error', (e) => {
-      console.error('Error Loading Video:', url, video.error.message)
+      console.error('Error Loading Video: ', url, video.error.message)
       rej(video)
     })
   })

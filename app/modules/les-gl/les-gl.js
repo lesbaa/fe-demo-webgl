@@ -244,7 +244,7 @@ export default class {
     )
   }
   
-  loadTexture = async ({
+  createTexture = async ({
     url,
     type = 'img',
   }) => {
@@ -333,6 +333,11 @@ export default class {
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
     if (data) {
       // if (~~Date.now() % 10 === 0) console.log(data)
+      if (texture.isVideo) {
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR)
+      }
       try {
         const level = 0
         const internalFormat = this.gl.RGBA

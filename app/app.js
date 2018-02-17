@@ -16,8 +16,7 @@
  * - cameras
  * - lighting
  * - ability to edit geometry on the fly. buffer data every frame for certain geometries?
- * - load multiple textures, use different textures for different objects
- * - dat.guid and stats
+ * - dat.guid
  * - load multiple shaders and switch during animation
  * - different materials? switching shaders for different objects
  * - use a single buffer for each type of geometry, if you have three cubes they can all use the same buffer
@@ -50,7 +49,7 @@ lesGl.addObject(
     w: 1.0,
     h: 1.0,
     d: 1.0,
-    texture: lesGl.loadTexture({
+    texture: lesGl.createTexture({
       url: './assets/doge.jpeg',
       type: 'img',
     }),
@@ -65,7 +64,7 @@ lesGl.addObject(
     w: 1.0,
     h: 1.0,
     d: 1.0,
-    texture: lesGl.loadTexture({
+    texture: lesGl.createTexture({
       url: './assets/mov.mov',
       type: 'video',
     }),
@@ -80,7 +79,7 @@ lesGl.addObject(
     w: 1.0,
     h: 1.0,
     d: 1.0,
-    texture: lesGl.loadTexture({
+    texture: lesGl.createTexture({
       url: './assets/doge-bump.jpeg',
       type: 'img',
     }),
