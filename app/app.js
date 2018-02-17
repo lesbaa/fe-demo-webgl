@@ -20,6 +20,7 @@
  * - dat.guid and stats
  * - load multiple shaders and switch during animation
  * - different materials? switching shaders for different objects
+ * - use a single buffer for each type of geometry, if you have three cubes they can all use the same buffer
  */
 
 // tidy up code, les
@@ -36,40 +37,56 @@ import {
 
 const c = document.getElementById('c')
 
-const lesGl = new LesGl(c, demoShader, {
+window.lesGl = new LesGl(c, demoShader, {
   debug: true,
   clearColor: [0, 0, 0, 1.0],
 })
 
-const dogeTexture = lesGl.loadTexture({
-  url: './assets/doge.jpeg',
-  id: 'doge-1',
-  type: 'img',
-})
-
-for (let i = 0; i < 10; i++) {
-
-const size = Math.random() * 2
 lesGl.addObject(
   cube({
-    x: 2 * (Math.random() - 0.5),
-    y: 2 * (Math.random() - 0.5),
+    x: 3 * (Math.random() - 0.5),
+    y: 3 * (Math.random() - 0.5),
     z: -5,
-    w: size,
-    h: size,
-    d: size,
-    texture: dogeTexture,
+    w: 1.0,
+    h: 1.0,
+    d: 1.0,
+    texture: lesGl.loadTexture({
+      url: './assets/doge.jpeg',
+      type: 'img',
+    }),
   }),
 )
-  
-}
-// lesGl.applyTexture(obj3D)
 
-lesGl.loadTexture({
-  url: './assets/doge-bump.jpeg',
-  id: 'doge-2',
-  type: 'img',
-})
+lesGl.addObject(
+  cube({
+    x: 3 * (Math.random() - 0.5),
+    y: 3 * (Math.random() - 0.5),
+    z: -5,
+    w: 1.0,
+    h: 1.0,
+    d: 1.0,
+    texture: lesGl.loadTexture({
+      url: './assets/mov.mov',
+      type: 'video',
+    }),
+  }),
+)
+
+lesGl.addObject(
+  cube({
+    x: 3 * (Math.random() - 0.5),
+    y: 3 * (Math.random() - 0.5),
+    z: -5,
+    w: 1.0,
+    h: 1.0,
+    d: 1.0,
+    texture: lesGl.loadTexture({
+      url: './assets/doge-bump.jpeg',
+      type: 'img',
+    }),
+  }),
+)
+// lesGl.applyTexture(obj3D)
 
 
 // lesGl.addSquare()
@@ -95,6 +112,7 @@ document.body.appendChild(
 
 
 const drawScene = (now) => {
+  // if (~~now % 10 === 0) console.log(dogeTex)
   requestAnimationFrame(drawScene)
   now *= 0.001
   for (let i = 0; i < lesGl.objects.length; i++) {

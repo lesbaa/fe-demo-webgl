@@ -6,7 +6,6 @@ import {
   loadImage,
   loadVideo,
   isPow2,
-  isMatrixUniform,
   degToRad,
   uuid,
 } from './utils'
@@ -149,7 +148,7 @@ export default class {
     }
     
     this.initUniforms()
-    
+    return
   }
 
   initUniforms = () => {
@@ -168,14 +167,17 @@ export default class {
         this.shader.uniforms[key].location = this.gl.getUniformLocation(this.shader.program, key)
       }
     }
+    return
   }
 
   setMatrixUniforms = () => { 
     this.gl.uniformMatrix4fv(this.shader.uniforms.uPMatrix.location, false, this.pMatrix)
     this.gl.uniformMatrix4fv(this.shader.uniforms.uMVMatrix.location, false, this.mvMatrix)
+    return
   }
   
   setUniforms = () => {
+    // this can get optimised too
     const uniformKeys = Object.keys(this.shader.uniforms)
     for (let i = 0; i < uniformKeys.length; i++) {
       const key = uniformKeys[i]
@@ -244,12 +246,12 @@ export default class {
   
   loadTexture = async ({
     url,
-    id = url,
     type = 'img',
   }) => {
     const texture = this.gl.createTexture()
     texture.glIndex = this.glLastCreatedTexture
-    
+    const id = uuid()
+    texture.uuid = id
     this.gl.activeTexture(this.gl[`TEXTURE${this.glLastCreatedTexture}`])
     this.shader.uniforms.uSampler.value = this.glLastCreatedTexture
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
@@ -279,6 +281,7 @@ export default class {
     if (type === 'img') {
       
       const image = await loadImage(url)
+      texture.isReady = true
       this.updateTexture(texture)
       this.gl.texImage2D(
         this.gl.TEXTURE_2D,
@@ -293,7 +296,7 @@ export default class {
       // power of 2 in both dimensions.
       if (isPow2(image.width) && isPow2(image.height)) {
         // Yes, it's a power of 2. Generate mips.
-        this.gl.generateMipmap(this.gl.TEXTURE_2D)
+        this.gl.generateMipmap(this.gl.TEXTURE_2D) // turn off mips in video block below ,<== ddg the anti-method to this
       } else {
         // No, it's not a power of 2. Turn on mips and set
         // wrapping to clamp to edge
@@ -306,6 +309,9 @@ export default class {
     if (type === 'video') {
       try {
         const video = await loadVideo(url)
+        window.vdiddly = video
+        texture.isReady = true
+        texture.isVideo = true
         video.play()
 
         this.videos[id] = video
@@ -317,52 +323,52 @@ export default class {
         console.error('video loading error: ', e)
       }
     }
-
-    this.textures.push(texture)
     return texture
   }
   
   updateTexture = (texture, data) => {
-    const level = 0
-    const internalFormat = this.gl.RGBA
-    const srcFormat = this.gl.RGBA
-    const srcType = this.gl.UNSIGNED_BYTE
-    
-    const textGlIndex = texture.glIndex
-
-    this.gl.activeTexture(this.gl[`TEXTURE${textGlIndex}`])
-    this.shader.uniforms.uSampler.value = textGlIndex
+    const texGlIndex = texture.glIndex
+    this.gl.activeTexture(this.gl[`TEXTURE${texGlIndex}`])
+    this.shader.uniforms.uSampler.value = texGlIndex
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-
     if (data) {
-      this.gl.texImage2D(
-        this.gl.TEXTURE_2D,
-        level,
-        internalFormat,
-        srcFormat,
-        srcType,
-        data,
-      )
+      // if (~~Date.now() % 10 === 0) console.log(data)
+      try {
+        const level = 0
+        const internalFormat = this.gl.RGBA
+        const srcFormat = this.gl.RGBA
+        const srcType = this.gl.UNSIGNED_BYTE
+        this.gl.texImage2D(
+          this.gl.TEXTURE_2D,
+          level,
+          internalFormat,
+          srcFormat,
+          srcType,
+          data,
+        )
+      } catch (e) {
+        console.log(e)
+      }
     }
+    return
   }
 
   mvPushMatrix() {
     const copy = mat4.create()
-    // Update: mat4.set(mvMatrix, copy); mat4.set() was removed from gl-matrix, use mat4.copy().
     mat4.copy(copy, this.mvMatrix)
     this.mvMatrixStack.push(copy)
+    return
   }
+
   mvPopMatrix() {
     if (this.mvMatrixStack.length == 0) {
       throw 'Invalid popMatrix!'
     }
     this.mvMatrix = this.mvMatrixStack.pop()
+    return
   }
 
-  render = (now) => {
-    this.gl.viewport(0, 0, this.canvas.width, this.canvas.height)
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
-    
+  render = async (now) => {
     // talk about perspective in here?
     mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
     this.setUniforms()
@@ -391,20 +397,11 @@ export default class {
         )
       }
 
-      const texture = object3D.texture
-      // debugger
-      if (texture && !(texture instanceof Promise)) {
-        // debugger
-        const textGlIndex = texture.glIndex
-        // debugger
-        
-        this.gl.activeTexture(this.gl[`TEXTURE${textGlIndex}`])
-        // debugger
-        this.shader.uniforms.uSampler.value = textGlIndex
-        // debugger
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-        // debugger
+      const texture = await object3D.texture
+
+      if (texture && texture.isReady) {
         this.setUniforms()
+        this.updateTexture(texture, texture.isVideo && this.videos[texture.uuid])
       }
 
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, object3D.positionBuffer)
@@ -436,7 +433,6 @@ export default class {
       this.gl.drawArrays(object3D.glPrimitive, 0, object3D.rows, 0)
       // debugger
       this.mvPopMatrix()
-
     }
     
   }
