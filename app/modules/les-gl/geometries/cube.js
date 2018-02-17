@@ -8,7 +8,7 @@ export default function({
   x = 0.0,
   y = 0.0,
   z = 0.0,
-  textureId,
+  texture = null,
 }) {
   return function() {
     return {
@@ -76,7 +76,7 @@ export default function({
       ],
       tCols: 2,
       tRows: 24,
-      textureId,
+      texture,
       cols: 3,
       rows: 24,
       position: {

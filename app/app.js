@@ -41,56 +41,29 @@ const lesGl = new LesGl(c, demoShader, {
   clearColor: [0, 0, 0, 1.0],
 })
 
-// lesGl.addGeometry(
-//   cube({
-//     x: .25,
-//     y: 0.0,
-//     z: -5.0,
-//     w: 0.5,
-//     h: 0.5,
-//     d: 0.5,
-//     textureId: 'doge-2',
-//   }),
-//   'cube-1',
-// )
-
-// lesGl.addGeometry(
-//   cube({
-//     x: -.25,
-//     y: 0.0,
-//     z: -5.0,
-//     w: .5,
-//     h: .5,
-//     d: .5,
-//     textureId: 'doge-1',
-//   }),
-//   'cube-2',
-// )
-
-for (let i = 0; i < 10; i++) {
-
-  const size = Math.random() * 2
-  lesGl.addGeometry(
-    cube({
-      x: 2 * (Math.random() - 0.5),
-      y: 2 * (Math.random() - 0.5),
-      z: -5,
-      w: size,
-      h: size,
-      d: size,
-      textureId: `doge-${i % 2 === 0 ? '1' : '2'}`,
-    }),
-    `cube-${i}`,
-  )
-  lesGl.applyTexture(`cube-${i}`)
-  
-}
-
-lesGl.loadTexture({
+const dogeTexture = lesGl.loadTexture({
   url: './assets/doge.jpeg',
   id: 'doge-1',
   type: 'img',
 })
+
+for (let i = 0; i < 10; i++) {
+
+const size = Math.random() * 2
+lesGl.addObject(
+  cube({
+    x: 2 * (Math.random() - 0.5),
+    y: 2 * (Math.random() - 0.5),
+    z: -5,
+    w: size,
+    h: size,
+    d: size,
+    texture: dogeTexture,
+  }),
+)
+  
+}
+// lesGl.applyTexture(obj3D)
 
 lesGl.loadTexture({
   url: './assets/doge-bump.jpeg',
@@ -124,13 +97,14 @@ document.body.appendChild(
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
-  Object.keys(lesGl.geometries).forEach((key, i) => {
+  for (let i = 0; i < lesGl.objects.length; i++) {
+    const obj = lesGl.objects[i]
     const wheech = (i + 1) / 3
-    const geo = lesGl.geometries[key]
-    geo.rotation.x += wheech
-    geo.rotation.y += wheech
-    geo.rotation.z += wheech
-  })
+    obj.rotation.x += wheech
+    obj.rotation.y += wheech
+    obj.rotation.z += wheech
+  }
+
   lesGl.shader.uniforms.globalTime.value += 0.01
   lesGl.render(now)
   stats.update()

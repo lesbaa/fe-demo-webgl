@@ -8,6 +8,7 @@ import {
   isPow2,
   isMatrixUniform,
   degToRad,
+  uuid,
 } from './utils'
 
 import {
@@ -25,9 +26,9 @@ export default class {
   pMatrix = mat4.create()
   mvMatrixStack = []
   glLastCreatedTexture = 0
-  textures = {}
+  textures = []
   videos = {}
-  geometries = {}
+  objects = []
 
   constructor(canvas, shader, {
     debug,
@@ -188,7 +189,7 @@ export default class {
     return
   }
 
-  addGeometry = (geometry, useId) => {
+  addObject = (obj3D, useId) => {
 
     const {
       vertices,
@@ -197,27 +198,48 @@ export default class {
       position,
       rotation,
       textureMap,
-      textureId,
+      texture,
       tRows,
       tCols,
       glPrimitive = this.gl.TRIANGLES,
-    } = geometry.bind(this)()
+    } = obj3D.bind(this)()
     const positionBuffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW)
-    this.geometries[useId] = {
+
+    const textureCoordBuffer = this.gl.createBuffer()
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, textureCoordBuffer)
+
+    this.gl.bufferData(
+      this.gl.ARRAY_BUFFER,
+      new Float32Array(textureMap),
+      this.gl.STATIC_DRAW,
+    )
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer)
+    
+    const newObj = {
+      id: useId || uuid(),
       positionBuffer,
       vertices,
       cols,
       rows,
       textureMap,
-      textureId,
+      texture,
+      textureCoordBuffer,
       tRows,
       tCols,
       position,
       rotation,
       glPrimitive,
     }
+    this.objects.push(newObj)
+    return newObj
+  }
+
+  removeObject(obj) {
+    this.objects = this.objects.filter(
+      el => el !== obj
+    )
   }
   
   loadTexture = async ({
@@ -296,8 +318,8 @@ export default class {
       }
     }
 
-
-    this.textures[id] = texture
+    this.textures.push(texture)
+    return texture
   }
   
   updateTexture = (texture, data) => {
@@ -323,25 +345,6 @@ export default class {
       )
     }
   }
-  
-  applyTexture(geometryId) {
-    const geometry = this.geometries[geometryId]
-    const textureCoordBuffer = this.gl.createBuffer()
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, textureCoordBuffer)
-
-    this.gl.bufferData(
-      this.gl.ARRAY_BUFFER,
-      new Float32Array(geometry.textureMap),
-      this.gl.STATIC_DRAW,
-    )
-
-    this.geometries[geometryId] = {
-      ...geometry,
-      textureCoordBuffer,
-    }
-    // Build the element array buffer; this specifies the indices
-    // into the vertex arrays for each face's vertices.
-  }
 
   mvPushMatrix() {
     const copy = mat4.create()
@@ -363,19 +366,15 @@ export default class {
     // talk about perspective in here?
     mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
     this.setUniforms()
-        
-    const geometryKeys = Object.keys(this.geometries)
-    
-    for (let i = 0; i < geometryKeys.length; i++) {
+          
+    for (let i = 0; i < this.objects.length; i++) {
       mat4.identity(this.mvMatrix)
+      const object3D = this.objects[i]
       
-      const key = geometryKeys[i]
-      const geometry = this.geometries[key]
-      
-      mat4.translate(this.mvMatrix, this.mvMatrix, Object.values(geometry.position))
+      mat4.translate(this.mvMatrix, this.mvMatrix, Object.values(object3D.position))
       this.mvPushMatrix()
       
-      const dimensions = Object.keys(geometry.rotation)
+      const dimensions = Object.keys(object3D.rotation)
       
       for (let j = 0; j < dimensions.length; j++) {
         const dimension = dimensions[j]
@@ -387,48 +386,55 @@ export default class {
         mat4.rotate(
           this.mvMatrix,
           this.mvMatrix,
-          degToRad(geometry.rotation[dimension]),
+          degToRad(object3D.rotation[dimension]),
           axis,
         )
       }
 
-      const texture = this.textures[geometry.textureId]
+      const texture = object3D.texture
       // debugger
-      if (texture) {
+      if (texture && !(texture instanceof Promise)) {
+        // debugger
         const textGlIndex = texture.glIndex
-  
+        // debugger
+        
         this.gl.activeTexture(this.gl[`TEXTURE${textGlIndex}`])
+        // debugger
         this.shader.uniforms.uSampler.value = textGlIndex
+        // debugger
         this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+        // debugger
         this.setUniforms()
       }
 
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.positionBuffer)
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, object3D.positionBuffer)
       this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
-  
+      // debugger
       this.gl.vertexAttribPointer(
         this.shader.attributes['aVertexPosition'].location,
-        geometry.cols,
+        object3D.cols,
         this.gl.FLOAT,
         false,
         0,
         0
       )
-      
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, geometry.textureCoordBuffer)
+      // debugger
+      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, object3D.textureCoordBuffer)
       this.gl.enableVertexAttribArray(this.shader.attributes['aTextureCoord'].location)
-
+      // debugger
       this.gl.vertexAttribPointer(
         this.shader.attributes['aTextureCoord'].location,
-        geometry.tCols,
+        object3D.tCols,
         this.gl.FLOAT,
         false,
         0,
         0
       )
- 
+      // debugger
       this.setMatrixUniforms()
-      this.gl.drawArrays(geometry.glPrimitive, 0, geometry.rows, 0)
+      // debugger
+      this.gl.drawArrays(object3D.glPrimitive, 0, object3D.rows, 0)
+      // debugger
       this.mvPopMatrix()
 
     }
