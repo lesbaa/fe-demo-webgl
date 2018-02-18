@@ -85,13 +85,6 @@ lesGl.addObject(
     }),
   }),
 )
-// lesGl.applyTexture(obj3D)
-
-
-// lesGl.addSquare()
-// lesGl.render()
-
-// lesGl.loadTexture('./assets/doge.jpeg', 'doge')
 
 
 const {
