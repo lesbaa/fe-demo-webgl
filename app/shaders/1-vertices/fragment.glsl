@@ -15,9 +15,12 @@ void main() {
   float texPositionY = v_textcoord.y;
 
   vec2 mapPosition = vec2(texPositionX, texPositionY);
-  vec4 mapPixel = texture2D(u_map, mapPosition);
+  vec4 mapPixel = texture2D(u_map, mapPosition + (globalTime / 2.0)) / 40.0;
 
-  vec2 texPosition = vec2(texPositionX, texPositionY);
+  vec2 texPosition = vec2(
+    texPositionX + mapPixel.r,
+    texPositionY + mapPixel.r
+  );
   vec4 texturePixel = texture2D(u_image, texPosition);
 
   float r = texturePixel.x;

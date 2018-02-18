@@ -41,18 +41,49 @@ export const loadImage = (imageUrl) => {
 }
 
 export async function createAndSetupTexture (imageUrl, gl, glTextureSlot, uniformLoc, glPrgrm) {
-  const texture = gl.createTexture()
-  
   // Tell WebGL we want to affect texture unit 0
   gl.activeTexture(gl[glTextureSlot.glSlot])
+  const texture = gl.createTexture()
+  
 
   // Bind the texture to texture unit 0
   gl.bindTexture(gl.TEXTURE_2D, texture)
 
   // Tell the shader we bound the texture to texture unit 0
   gl.uniform1i(uniformLoc, glTextureSlot.ind)
+  
+  const level = 0
+  const internalFormat = gl.RGBA
+  const width = 1
+  const height = 1
+  const border = 0
+  const srcFormat = gl.RGBA
+  const srcType = gl.UNSIGNED_BYTE
+  const pixel = new Uint8Array([0, 160, 255, 255])  // opaque blue
+
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    level,
+    internalFormat,
+    width,
+    height,
+    border,
+    srcFormat,
+    srcType,
+    pixel,
+  )
+
   try {
     const image = await loadImage(imageUrl)
+    gl.activeTexture(gl[glTextureSlot.glSlot])
+    const texture = gl.createTexture()
+    
+  
+    // Bind the texture to texture unit 0
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+  
+    // Tell the shader we bound the texture to texture unit 0
+    gl.uniform1i(uniformLoc, glTextureSlot.ind)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
     // Set up texture so we can render any size image and so we are
     // working with pixels.

@@ -45,7 +45,13 @@ addGeomAttr(
   ]
 )
 
-createAndSetupTexture('./assets/doge.jpeg', gl, glPrgrm)
+// createAndSetupTexture(
+//   './assets/doge.jpeg',
+//   gl,
+//   gl.TEXTURE0,
+//   glPrgrm,
+//   gl.getUniformLocation('')
+// )
 
 //////// HERE LES ////////
 // finish loading texture
@@ -70,18 +76,23 @@ gl.viewport(0, 0, c.width, c.height)
 const timeUniformLocation = gl.getUniformLocation(glPrgrm, 'globalTime')
 
 gl.useProgram(glPrgrm) // duh
-const imageUniform = gl.getUniformLocation(glPrgrm, 'u_map')
+const imageUniform = gl.getUniformLocation(glPrgrm, 'u_image')
 createAndSetupTexture('./assets/doge.jpeg', gl, { glSlot:'TEXTURE0', ind: 0 }, imageUniform, glPrgrm)
 const mapUniform = gl.getUniformLocation(glPrgrm, 'u_map')
 createAndSetupTexture('./assets/doge-bump.jpeg', gl, { glSlot: 'TEXTURE1', ind: 1 }, mapUniform, glPrgrm)
 
 
 const drawScene = (now) => {
+  requestAnimationFrame(drawScene)  
+
   now *= 0.001
 
   // pass in canvas dimensions as a uniform
   gl.uniform1f(timeUniformLocation, now)
-
+  gl.activeTexture(gl.TEXTURE0)
+  gl.uniform1i(imageUniform, 0)
+  gl.activeTexture(gl.TEXTURE1)
+  gl.uniform1i(mapUniform, 1)
 
   // finally, we can draw it
   const primitiveType = gl.TRIANGLES // 
@@ -89,7 +100,6 @@ const drawScene = (now) => {
   const count = 6 // how many times to execute the shader
 
   gl.drawArrays(primitiveType, offset, count)
-  requestAnimationFrame(drawScene)
 }
 
 drawScene(0.0)
