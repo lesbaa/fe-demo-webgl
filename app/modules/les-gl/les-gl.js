@@ -246,6 +246,7 @@ export default class {
   
   createTexture = async ({
     url,
+    color = [255, 255, 255, 10],
     type = 'img',
   }) => {
     const texture = this.gl.createTexture()
@@ -265,7 +266,7 @@ export default class {
     const border = 0
     const srcFormat = this.gl.RGBA
     const srcType = this.gl.UNSIGNED_BYTE
-    const pixel = new Uint8Array([50, 200, 120, 10])  // opaque blue
+    const pixel = new Uint8Array(color)
 
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
@@ -278,6 +279,7 @@ export default class {
       srcType,
       pixel,
     )
+
     if (type === 'img') {
       
       const image = await loadImage(url)

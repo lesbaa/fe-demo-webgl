@@ -19,9 +19,9 @@ void main(void) {
   float a = texColor.w;
 
   gl_FragColor = vec4(
-    r * 1.0 - (uv.z / 10.0),
-    g * 1.0 - (uv.z / 10.0),
-    b * 1.0 - (uv.z / 10.0),
+    g * 1.0,
+    r * 1.0,
+    b * 1.0,
     a
   );
 }

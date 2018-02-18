@@ -41,51 +41,20 @@ window.lesGl = new LesGl(c, demoShader, {
   clearColor: [0, 0, 0, 1.0],
 })
 
-lesGl.addObject(
-  cube({
-    x: 3 * (Math.random() - 0.5),
-    y: 3 * (Math.random() - 0.5),
-    z: -5,
+const obj = lesGl.addObject(
+  rect({
+    x: 0.0,
+    y: 0.0,
+    z: -4,
     w: 1.0,
     h: 1.0,
     d: 1.0,
     texture: lesGl.createTexture({
-      url: './assets/doge.jpeg',
-      type: 'img',
+      type: 'basic',
+      color: [255, 0, 255, 10],
     }),
   }),
 )
-
-lesGl.addObject(
-  cube({
-    x: 3 * (Math.random() - 0.5),
-    y: 3 * (Math.random() - 0.5),
-    z: -5,
-    w: 1.0,
-    h: 1.0,
-    d: 1.0,
-    texture: lesGl.createTexture({
-      url: './assets/mov.mov',
-      type: 'video',
-    }),
-  }),
-)
-
-lesGl.addObject(
-  cube({
-    x: 3 * (Math.random() - 0.5),
-    y: 3 * (Math.random() - 0.5),
-    z: -5,
-    w: 1.0,
-    h: 1.0,
-    d: 1.0,
-    texture: lesGl.createTexture({
-      url: './assets/doge-bump.jpeg',
-      type: 'img',
-    }),
-  }),
-)
-
 
 const {
  width,
@@ -107,13 +76,9 @@ const drawScene = (now) => {
   // if (~~now % 10 === 0) console.log(dogeTex)
   requestAnimationFrame(drawScene)
   now *= 0.001
-  for (let i = 0; i < lesGl.objects.length; i++) {
-    const obj = lesGl.objects[i]
-    const wheech = (i + 1) / 3
-    obj.rotation.x += wheech
-    obj.rotation.y += wheech
-    obj.rotation.z += wheech
-  }
+  // obj.rotation.x += 1
+  // obj.rotation.y += 1
+  // obj.rotation.z += 1
 
   lesGl.shader.uniforms.globalTime.value += 0.01
   lesGl.render(now)
