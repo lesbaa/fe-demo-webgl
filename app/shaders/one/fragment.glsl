@@ -7,20 +7,17 @@ uniform sampler2D uSampler;
 void main(void) {
   vec4 texColor = texture2D(
     uSampler,
-    vec2(
-      vTextureCoord.x,
-      vTextureCoord.y
-    )
+    vTextureCoord
   );
   
-  float r = texColor.x;
-  float g = texColor.y;
-  float b = texColor.z;
-  float a = texColor.w;
+  float r = texColor.r;
+  float g = texColor.g;
+  float b = texColor.b;
+  float a = texColor.a;
 
   gl_FragColor = vec4(
-    g * 1.0,
     r * 1.0,
+    g * 1.0,
     b * 1.0,
     a
   );

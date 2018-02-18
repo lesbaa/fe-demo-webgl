@@ -42,7 +42,7 @@ window.lesGl = new LesGl(c, demoShader, {
 })
 
 const obj = lesGl.addObject(
-  rect({
+  cube({
     x: 0.0,
     y: 0.0,
     z: -4,
@@ -50,8 +50,8 @@ const obj = lesGl.addObject(
     h: 1.0,
     d: 1.0,
     texture: lesGl.createTexture({
-      type: 'basic',
-      color: [255, 0, 255, 10],
+      url: './assets/doge.jpeg',
+      type: 'img',
     }),
   }),
 )
@@ -71,6 +71,8 @@ document.body.appendChild(
   document.createElement('div').appendChild(stats.dom)
 )
 
+obj.rotation.z = 90
+obj.position.z = -1.5
 
 const drawScene = (now) => {
   // if (~~now % 10 === 0) console.log(dogeTex)
@@ -79,7 +81,7 @@ const drawScene = (now) => {
   // obj.rotation.x += 1
   // obj.rotation.y += 1
   // obj.rotation.z += 1
-
+  
   lesGl.shader.uniforms.globalTime.value += 0.01
   lesGl.render(now)
   stats.update()
