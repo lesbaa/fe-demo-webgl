@@ -242,6 +242,7 @@ export default class {
     this.objects = this.objects.filter(
       el => el !== obj
     )
+    return
   }
   
   createTexture = async ({
@@ -334,7 +335,6 @@ export default class {
     this.shader.uniforms.uSampler.value = texGlIndex
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
     if (data) {
-      // if (~~Date.now() % 10 === 0) console.log(data)
       if (texture.isVideo) {
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE)
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE)
@@ -377,7 +377,7 @@ export default class {
 
   render = async (now) => {
     // talk about perspective in here?
-    mat4.perspective(this.pMatrix, .90, this.canvas.width / this.canvas.height, 0.1, 100.0)
+    mat4.perspective(this.pMatrix, 0.9, this.canvas.width / this.canvas.height, 0.1, 100.0)
     this.setUniforms()
           
     for (let i = 0; i < this.objects.length; i++) {

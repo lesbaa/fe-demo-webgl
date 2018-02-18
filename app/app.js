@@ -42,7 +42,7 @@ window.lesGl = new LesGl(c, demoShader, {
 })
 
 const obj = lesGl.addObject(
-  cube({
+  rect({
     x: 0.0,
     y: 0.0,
     z: -4,
@@ -71,15 +71,17 @@ document.body.appendChild(
   document.createElement('div').appendChild(stats.dom)
 )
 
-obj.rotation.z = 90
 obj.position.z = -1.5
+obj.rotation.z = 180
+
 
 const drawScene = (now) => {
   // if (~~now % 10 === 0) console.log(dogeTex)
   requestAnimationFrame(drawScene)
   now *= 0.001
   // obj.rotation.x += 1
-  // obj.rotation.y += 1
+  obj.rotation.y += 1
+  
   // obj.rotation.z += 1
   
   lesGl.shader.uniforms.globalTime.value += 0.01
