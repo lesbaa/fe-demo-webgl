@@ -1,10 +1,12 @@
 precision mediump float;
-uniform float globalTime;
+uniform float u_globalTime;
 varying vec3 v_textcoord;
 uniform sampler2D u_image;
 uniform sampler2D u_map;
-varying float sint;
-varying float cost;
+uniform float u_mouseX;
+uniform float u_mouseY;
+varying float v_sint;
+varying float v_cost;
 
 float random(vec2 c){
   return fract(sin(dot( c.xy, vec2(12.9898,78.233))) * 43758.5453);
@@ -15,7 +17,7 @@ void main() {
   float texPositionY = v_textcoord.y;
 
   vec2 mapPosition = vec2(texPositionX, texPositionY);
-  vec4 mapPixel = texture2D(u_map, mapPosition + (globalTime / 2.0)) / 40.0;
+  vec4 mapPixel = texture2D(u_map, mapPosition + (u_globalTime / 2.0)) / 40.0;
 
   vec2 texPosition = vec2(
     texPositionX + mapPixel.r,

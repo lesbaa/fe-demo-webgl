@@ -73,7 +73,9 @@ gl.viewport(0, 0, c.width, c.height)
 */
 
 // binds a uniform to a location
-const timeUniformLocation = gl.getUniformLocation(glPrgrm, 'globalTime')
+const timeUniformLocation = gl.getUniformLocation(glPrgrm, 'u_globalTime')
+const mouseXUniformLocation = gl.getUniformLocation(glPrgrm, 'u_mouseX')
+const mouseYUniformLocation = gl.getUniformLocation(glPrgrm, 'u_mouseY')
 
 gl.useProgram(glPrgrm) // duh
 const imageUniform = gl.getUniformLocation(glPrgrm, 'u_image')
@@ -81,6 +83,8 @@ createAndSetupTexture('./assets/doge.jpeg', gl, { glSlot:'TEXTURE0', ind: 0 }, i
 const mapUniform = gl.getUniformLocation(glPrgrm, 'u_map')
 createAndSetupTexture('./assets/doge-bump.jpeg', gl, { glSlot: 'TEXTURE1', ind: 1 }, mapUniform, glPrgrm)
 
+let mouseX = 0
+let mouseY = 0
 
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)  
@@ -89,6 +93,8 @@ const drawScene = (now) => {
 
   // pass in canvas dimensions as a uniform
   gl.uniform1f(timeUniformLocation, now)
+  gl.uniform1f(mouseYUniformLocation, mouseX)
+  gl.uniform1f(mouseYUniformLocation, mouseY)
   gl.activeTexture(gl.TEXTURE0)
   gl.uniform1i(imageUniform, 0)
   gl.activeTexture(gl.TEXTURE1)
@@ -104,12 +110,18 @@ const drawScene = (now) => {
 
 drawScene(0.0)
 
-window.addEventListener('resize', handleResize)
+const handleMouse = ({
+  clientX,
+  clientY,
+}) => {
+  mouseX = clientX / 200
+  mouseY = clientY / 200
+}
 
-function handleResize() {
+const handleResize = () => {
   // Lookup the size the browser is displaying the canvas.
-  var displayWidth  = c.clientWidth
-  var displayHeight = c.clientHeight
+  let displayWidth  = c.clientWidth
+  let displayHeight = c.clientHeight
  
   // Check if the canvas is not the same size.
   if (c.width  != displayWidth ||
@@ -123,3 +135,6 @@ function handleResize() {
 
   }
 }
+
+window.addEventListener('resize', handleResize)
+window.addEventListener('mousemove', handleMouse)
