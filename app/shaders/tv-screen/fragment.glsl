@@ -11,10 +11,10 @@ float random(vec2 c){
 void main() {
   vec4 color = texture2D( tDiffuse, vUv );
   float rndm = random( vec2(vUv.x + tLes, vUv.y + tLes) ) / 4.0;
-  float modifyWithSin = sin(vUv.y * 1000.0);
-  float r = color.r + rndm * modifyWithSin;
+  float modifyWithSin = sin(vUv.y * 800.0) * 5.0;
+  float r = 0.2;
   float g = color.g + rndm * modifyWithSin;
-  float b = color.b + rndm * modifyWithSin;
+  float b = 0.5;
   float a = 0.0;
   gl_FragColor = vec4(r,g,b,a);
 }

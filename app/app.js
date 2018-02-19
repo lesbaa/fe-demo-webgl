@@ -36,7 +36,7 @@ const canvas = document.getElementById('c')
 const scene = new Scene()
 const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 const textureLoader = new TextureLoader()
-const RESOLUTION = 10
+
 const envMap = textureLoader.load('assets/texture.png')
 envMap.mapping = SphericalReflectionMapping
 
@@ -70,7 +70,6 @@ const cube = new Mesh(
   normalMaterial
 )
 
-
 const sphere = new Mesh(
   sphereGeom,
   normalMaterial
@@ -84,19 +83,18 @@ const ground = new Mesh(
 scene.add(cube)
 scene.add(ground)
 
-
 const composer = new EffectComposer( renderer )
 composer.addPass( new RenderPass( scene, camera ) )
 
-// pixelateShader.uniforms['tileSize'].value = 150.0
 // const pixelateEffect = new ShaderPass( pixelateShader )
+// pixelateEffect.uniforms['tileSize'].value = 50.0
 // pixelateEffect.renderToScreen = true
 // composer.addPass( pixelateEffect )
 
 
-const tvScreenEffect = new ShaderPass( tvScreenShader )
-tvScreenEffect.renderToScreen = true
-composer.addPass( tvScreenEffect )
+// const tvScreenEffect = new ShaderPass( tvScreenShader )
+// tvScreenEffect.renderToScreen = true
+// composer.addPass( tvScreenEffect )
 
 // const dotScreenEffect = new ShaderPass( dotScreenShader )
 // dotScreenEffect.uniforms[ 'scale' ].value = 2.4
@@ -115,21 +113,24 @@ const controls = new OrbitControls(camera, renderer.domElement)
 
 const loop = (time) => {
   cube.rotation.y += 0.01
+  cube.rotation.z += 0.01
   
   // rgbShiftEffect.uniforms[ 'angle' ].value += 0.1
+  // rgbShiftEffect.uniforms[ 'amount' ].value = 0.1
   
   // pixelateEffect.uniforms[ 'tileSize' ].value += 0.1
-  tvScreenEffect.uniforms['tLes'].value += 1.0
+  // tvScreenEffect.uniforms['tLes'].value += 1.0
   
   camera.lookAt(new Vector3(
     cube.position.x,
     cube.position.y,
     cube.position.z
   ))
+  
   controls.update()
-  composer.render()
+  // composer.render()
+  renderer.render( scene, camera )
   requestAnimationFrame(loop)
-  // renderer.render( scene, camera )
 }
 
 loop()
