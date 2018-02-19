@@ -289,3 +289,5 @@ THREE.FlyControls = function ( object, domElement ) {
 	this.updateRotationVector();
 
 };
+
+export default THREE

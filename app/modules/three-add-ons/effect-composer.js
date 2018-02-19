@@ -185,3 +185,5 @@ Object.assign( THREE.Pass.prototype, {
 	}
 
 } );
+
+export default THREE

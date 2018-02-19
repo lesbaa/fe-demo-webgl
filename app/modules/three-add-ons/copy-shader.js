@@ -40,3 +40,5 @@ THREE.CopyShader = {
 	].join( "\n" )
 
 };
+
+export default THREE

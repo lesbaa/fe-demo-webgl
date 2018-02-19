@@ -59,3 +59,5 @@ THREE.RenderPass.prototype = Object.assign( Object.create( THREE.Pass.prototype 
 	}
 
 } );
+
+export default THREE
