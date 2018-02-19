@@ -5,7 +5,7 @@ import vertexShader from './vertex.glsl'
 export default {
   uniforms: {
     'tDiffuse': { value: null },
-    'tileSize': { value: 4.0 },
+    'tileSize': { value: 30 },
     // 'mousePos': { value: new THREE.Vector2(0.0, 0.0) },
     'viewportSize': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
   },
