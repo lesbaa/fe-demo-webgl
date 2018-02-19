@@ -80,7 +80,6 @@ const positions = [
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
 // binds a uniform to a location
-const timeUniformLocation = gl.getUniformLocation(glPrgrm, 't')
 
 // we need to tell the API what size to render the content to
 const devicePixelRatio = window.devicePixelRatio || 1
@@ -105,9 +104,6 @@ const drawScene = (now) => {
   // turns the attribute location 'on'
 
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
-
-  // pass in canvas dimensions as a uniform
-  gl.uniform1f(timeUniformLocation, now)
 
   // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
   gl.vertexAttribPointer(
