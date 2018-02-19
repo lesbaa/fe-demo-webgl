@@ -94,7 +94,6 @@ composer.addPass( new RenderPass( scene, camera ) )
 // composer.addPass( pixelateEffect )
 
 
-tvScreenShader.uniforms['tLes'].value = 150.0
 const tvScreenEffect = new ShaderPass( tvScreenShader )
 tvScreenEffect.renderToScreen = true
 composer.addPass( tvScreenEffect )
@@ -115,12 +114,12 @@ camera.position.y = 1.7
 const controls = new OrbitControls(camera, renderer.domElement)
 
 const loop = (time) => {
-  cube.rotation.y = 1.57 / 2
+  cube.rotation.y += 0.01
   
   // rgbShiftEffect.uniforms[ 'angle' ].value += 0.1
   
   // pixelateEffect.uniforms[ 'tileSize' ].value += 0.1
-  tvScreenShader.uniforms['tLes'].value = time
+  tvScreenEffect.uniforms['tLes'].value += 1.0
   
   camera.lookAt(new Vector3(
     cube.position.x,
