@@ -127,7 +127,7 @@ const addObject = (i) => {
     move:true
   }
 
-  const sphereBody = world.add( options )
+  const sphereBody = world.add(options)
 
   bodies.push(sphereBody)
   objects.push(object)
