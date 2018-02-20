@@ -8,12 +8,7 @@ import lesCustomShader from './shaders/les-custom'
 
 import {
   World,
-  Box,
-  Sphere,
-  NaiveBroadphase,
-  Body,
-  Plane,
-} from 'cannon'
+} from 'oimo'
 
 const {
   Scene,
@@ -71,8 +66,10 @@ const lightTwo = new PointLight( 0xdd3333, 1.00)
 lightTwo.position.set(-5, -5, -5)
 scene.add(lightTwo)
 
-const boxGeom = new BoxGeometry(1, 1, 1)
-const sphereGeom = new SphereGeometry(0.5, 10, 10)
+const radius = 1
+
+const boxGeom = new BoxGeometry(radius, radius, radius)
+const sphereGeom = new SphereGeometry(radius, 10, 10)
 const groundGeom = new PlaneGeometry(1000, 1000, 1000, 10, 10)
 
 const ground = new Mesh(
@@ -89,74 +86,86 @@ camera.position.y = 1.7
 const controls = new OrbitControls(camera, renderer.domElement)
 
 // physics stuff
-const world = new World()
-world.gravity.set(0, -9.82, -0)
-world.broadphase = new NaiveBroadphase()
+const world = new World({ 
+  timestep: 1 / 60,
+  iterations: 8, 
+  broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
+  worldscale: 1, // scale full world 
+  random: true,  // randomize sample
+  info: false,   // calculate statistic or not
+  gravity: [0, -9.8, 0] 
+})
 
-const groundShape = new Plane()
-const groundBody = new Body({ mass: 0, shape: groundShape })
-groundBody.position.set(0, -1, 0)
-world.add(groundBody)
+const groundBody = world.add({size:[50, 10, 50], pos:[0, -5.65, 0], density:1 })
 
-const bodies = []
-const objects = []
+let bodies = []
+let objects = []
 
-for (let i = 0; i < 1; i++) {
-  // const cube = new Mesh(
-  //   boxGeom,
-  //   shaderMaterial,
-  // )
-  // scene.add(cube)
+const addObject = (i) => {
+  const isOdd = i % 2 === 0
   
-  const sphere = new Mesh(
-    sphereGeom,
+  const object = new Mesh(
+    isOdd ? sphereGeom : boxGeom,
     shaderMaterial
   )
-  const sphereShape = new Sphere(0.5)
-  const sphereBody = new Body({
-    mass: 1.0,
-    shape: sphereShape,
-  })
+  
   const rndmZ = Math.random()
+  const rndmX = Math.random()
+  
+  scene.add(object)
+  object.position.set(rndmX, 10, rndmZ)
+
+  const options = {
+    type: isOdd ? 'sphere' :'box',
+    size:[
+      radius,
+      radius,
+      radius,
+    ],
+    pos:[rndmX, 10, rndmZ],
+    density:1,
+    move:true
+  }
+
+  const sphereBody = world.add( options )
+
   bodies.push(sphereBody)
-  objects.push(sphere)
-  sphereBody.position.set(0, i, 0)
-  sphere.position.set(0, i, 0)
-  world.add(sphereBody)
-  scene.add(sphere)  
+  objects.push(object)
 }
 
-let step = 0
+let t = 1
 
 const loop = (time) => {
   requestAnimationFrame(loop)
-  
-  world.step(step / 1000)
-  step++
-  for (let i = 0;  i < bodies.length; i++) {
+  if (~~time % 3 === 0) {
+    addObject(~~(3 * Math.random()))
+  }
+  world.step(t)
+  for (let i = 0; i < objects.length; i++) {
     const child = objects[i]
-    debugger
     const body = bodies[i]
-    debugger
-    child.position.x = body.position.x
-    debugger
-    child.position.y = body.position.y
-    debugger
-    child.position.z = body.position.z
-    debugger
+    if (body.getPosition().y < -5) {
+      const index = bodies.indexOf(body)
+      bodies.splice(index, 1)
+      objects.splice(index, 1)
+    } else {
+      child.position.copy( body.getPosition() )
+      child.quaternion.copy( body.getQuaternion() )
+    }
   }
 
   shaderMaterial.uniforms.tLes.value += 0.1
-  
-  camera.lookAt(new Vector3(
-    0,
-    0,
-    0,
-  ))
+  camera.lookAt(
+    new Vector3(
+      0,
+      0,
+      0
+    )
+  )
 
   controls.update()
   renderer.render( scene, camera )
 }
 
-renderer.render( scene, camera )
-window.loop = loop
+// renderer.render( scene, camera )
+loop()
