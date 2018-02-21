@@ -104,7 +104,7 @@ for (let i = 0; i < totalNumObjects; i++) {
   })
 }
 
-const updateWorldState = gpu.createKernel(function (world) {
+const updateWorldState = gpu.createKernel(function (object, otherObject) {
   // h^2 = b^2 + c^2
   function collision(a, b) {
     var diffX = a.x - b.x
@@ -117,29 +117,30 @@ const updateWorldState = gpu.createKernel(function (world) {
     )
     return hyp > (a.r + b.r)
   }
-  for (let i = 0; i < world.length; i++) {
-    var object = world[i];
-    if (object.y >= 0) {
-      object.y = object.y + object.dy;
-    }
-    for (let j = 0; j < world.length; j++) {
-      var otherObject = world[j];
-      if (distance(object, otherObject)) {
-        object.dx = ( object.dx + otherObject.dx ) / 2;
-        otherObject.dx = ( object.dx + otherObject.dx ) / 2;
-        object.dy = ( object.dy + otherObject.dy ) / 2;
-        otherObject.dy = ( object.dy + otherObject.dy ) / 2;
-        object.dz = ( object.dz + otherObject.dz ) / 2;
-        otherObject.dz = ( object.dz + otherObject.dz ) / 2;
-      }
-    }
+
+  if (object.y >= 0) {
+    object.y = object.y + object.dy;
   }
+  
+  if (object.y <= 0) {
+    object.dy = object.dy * -1
+  }
+
+  if (collision(object, otherObject)) {
+    object.dx = ( object.dx + otherObject.dx ) / 2;
+    otherObject.dx = ( object.dx + otherObject.dx ) / 2;
+    object.dy = ( object.dy + otherObject.dy ) / 2;
+    otherObject.dy = ( object.dy + otherObject.dy ) / 2;
+    object.dz = ( object.dz + otherObject.dz ) / 2;
+    otherObject.dz = ( object.dz + otherObject.dz ) / 2;
+  }
+
   return world
 }).setOutput([totalNumObjects])
 
 const loop = (time) => {
   requestAnimationFrame(loop)
-  console.log(updateWorldState(myWorld))
+  
   // for (let i = 0; i < myWorld.length; i++) {
   //   const worldState = updateWorldState
   //   const object = myWorld[i]
