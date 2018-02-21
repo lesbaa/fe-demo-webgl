@@ -6,9 +6,7 @@ import rgbShiftShader from './shaders/rgb-shift'
 import tvScreenShader from './shaders/tv-screen'
 import lesCustomShader from './shaders/les-custom'
 
-import {
-  World,
-} from 'oimo'
+import GPU from 'gpu.js'
 
 const {
   Scene,
@@ -16,23 +14,13 @@ const {
   WebGLRenderer,
   BoxGeometry,
   Mesh,
-  AmbientLight,
-  AdditiveBlending,
-  GridHelper,
-  SpotLight,
   SphereGeometry,
-  TextureLoader,
-  SphericalReflectionMapping,
   DoubleSide,
-  MeshNormalMaterial,
   ShaderMaterial,
   MeshLambertMaterial,
   PlaneGeometry,
   Vector3,
-  EffectComposer,
   OrbitControls,
-  ShaderPass,
-  RenderPass,
   PointLight,
 } = THREE
 
@@ -41,7 +29,6 @@ const {
 const canvas = document.getElementById('c')
 const scene = new Scene()
 const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
-const textureLoader = new TextureLoader()
 
 const renderer = new WebGLRenderer({
   // preserveDrawingBuffer: true,
@@ -85,75 +72,80 @@ camera.position.y = 1.7
 
 const controls = new OrbitControls(camera, renderer.domElement)
 
-// physics stuff
-const world = new World({ 
-  timestep: 1 / 60,
-  iterations: 8, 
-  broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
-  worldscale: 1, // scale full world 
-  random: true,  // randomize sample
-  info: false,   // calculate statistic or not
-  gravity: [0, -9.8, 0] 
-})
 
-const groundBody = world.add({size:[50, 10, 50], pos:[0, -5.65, 0], density:1 })
-
-let bodies = []
-let objects = []
-
-const addObject = (i) => {
-  const isOdd = i % 2 === 0
-  
-  const object = new Mesh(
-    isOdd ? sphereGeom : boxGeom,
-    shaderMaterial
-  )
-  
-  const rndmZ = Math.random()
-  const rndmX = Math.random()
-  
-  scene.add(object)
-  object.position.set(rndmX, 10, rndmZ)
-
-  const options = {
-    type: isOdd ? 'sphere' :'box',
-    size:[
-      radius,
-      radius,
-      radius,
-    ],
-    pos:[rndmX, 10, rndmZ],
-    density:1,
-    move:true
-  }
-
-  const sphereBody = world.add(options)
-
-  bodies.push(sphereBody)
-  objects.push(object)
-}
 
 let t = 1
 
-const loop = (time) => {
-  requestAnimationFrame(loop)
-  if (~~time % 3 === 0) {
-    addObject(~~(3 * Math.random()))
+const gpu = new GPU()
+
+const totalNumObjects = 10
+
+const myWorld = []
+
+for (let i = 0; i < totalNumObjects; i++) {
+  const sphere = new Mesh(
+    sphereGeom,
+    normalMaterial,
+  )
+  
+  sphere.position.x = ~~(Math.random() * 2)
+  sphere.position.y = (i + radius) * 2
+  sphere.position.z = ~~(Math.random() * 2)
+
+  scene.add(sphere)
+  myWorld.push({
+    x: sphere.position.x,
+    y: sphere.position.y,
+    z: sphere.position.z,
+    dx: 0.0,
+    dy: -9.82,
+    dz: 0.0,
+    r: radius,
+  })
+}
+
+const updateWorldState = gpu.createKernel(function (world) {
+  // h^2 = b^2 + c^2
+  function collision(a, b) {
+    var diffX = a.x - b.x
+    var diffY = a.y - b.y
+    var diffZ = a.z - b.z
+    var hyp = Math.sqrt(
+      Math.pow(diffX, 2) +
+      Math.pow(diffY, 2) +
+      Math.pow(diffZ, 2)
+    )
+    return hyp > (a.r + b.r)
   }
-  world.step(t)
-  for (let i = 0; i < objects.length; i++) {
-    const child = objects[i]
-    const body = bodies[i]
-    if (body.getPosition().y < -5) {
-      const index = bodies.indexOf(body)
-      bodies.splice(index, 1)
-      objects.splice(index, 1)
-    } else {
-      child.position.copy( body.getPosition() )
-      child.quaternion.copy( body.getQuaternion() )
+  for (let i = 0; i < world.length; i++) {
+    var object = world[i];
+    if (object.y >= 0) {
+      object.y = object.y + object.dy;
+    }
+    for (let j = 0; j < world.length; j++) {
+      var otherObject = world[j];
+      if (distance(object, otherObject)) {
+        object.dx = ( object.dx + otherObject.dx ) / 2;
+        otherObject.dx = ( object.dx + otherObject.dx ) / 2;
+        object.dy = ( object.dy + otherObject.dy ) / 2;
+        otherObject.dy = ( object.dy + otherObject.dy ) / 2;
+        object.dz = ( object.dz + otherObject.dz ) / 2;
+        otherObject.dz = ( object.dz + otherObject.dz ) / 2;
+      }
     }
   }
+  return world
+}).setOutput([totalNumObjects])
 
+const loop = (time) => {
+  requestAnimationFrame(loop)
+  console.log(updateWorldState(myWorld))
+  // for (let i = 0; i < myWorld.length; i++) {
+  //   const worldState = updateWorldState
+  //   const object = myWorld[i]
+
+  // }
+  
   shaderMaterial.uniforms.tLes.value += 0.1
   camera.lookAt(
     new Vector3(

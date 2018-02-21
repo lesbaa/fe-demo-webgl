@@ -33,6 +33,7 @@
   "dependencies": {
     "@tweenjs/tween.js": "^17.1.1",
     "babel-eslint": "^8.1.2",
+    "gpu.js": "^1.0.0",
     "oimo": "1.0.9",
     "three": "^0.89.0",
     "webgl-debug": "^2.0.0"
