@@ -20,12 +20,12 @@ void main() {
         1.0
     );
 
-    gl_Position = uPMatrix * uMVMatrix * vec4(
-        x,
-        y,
-        z + sin(globalTime),
-        1.0
-    );
+    // gl_Position = uPMatrix * uMVMatrix * vec4(
+    //     x,
+    //     y,
+    //     z + sin(globalTime),
+    //     1.0
+    // );
 
     vTextureCoord = aTextureCoord;
     uv = gl_Position;
