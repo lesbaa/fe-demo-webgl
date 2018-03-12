@@ -1,21 +1,21 @@
 // an attribute will receive data from a buffer
 precision mediump float;
 attribute vec4 les_position;
-uniform float t;
+uniform float u_t;
 // all shaders have a main function
 void main() {
   float x;
   float y;
   if (les_position.y > 0.0) {
-    x = les_position.x + sin(t * 10.0) / 10.0;
+    x = les_position.x + sin(u_t * 10.0) / 10.0;
   } else {
-    x = les_position.x + cos(t * 10.0) / 10.0;
+    x = les_position.x + cos(u_t * 10.0) / 10.0;
   }
 
   if (les_position.x > 0.0) {
-    y = les_position.y + sin(t * 10.0) / 10.0;
+    y = les_position.y + sin(u_t * 10.0) / 10.0;
   } else {
-    y = les_position.y + cos(t * 10.0) / 10.0;
+    y = les_position.y + cos(u_t * 10.0) / 10.0;
   }
 
   // gl_Position is a special variable a vertex shader

@@ -80,7 +80,7 @@ const positions = [
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
 // binds a uniform to a location
-const timeUniformLocation = gl.getUniformLocation(glPrgrm, 't')
+const timeUniformLocation = gl.getUniformLocation(glPrgrm, 'u_t')
 
 // we need to tell the API what size to render the content to
 const devicePixelRatio = window.devicePixelRatio || 1
