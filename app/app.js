@@ -93,7 +93,7 @@ const drawScene = (now) => {
 
   // pass in canvas dimensions as a uniform
   gl.uniform1f(timeUniformLocation, now)
-  gl.uniform1f(mouseYUniformLocation, mouseX)
+  gl.uniform1f(mouseXUniformLocation, mouseX)
   gl.uniform1f(mouseYUniformLocation, mouseY)
   gl.activeTexture(gl.TEXTURE0)
   gl.uniform1i(imageUniform, 0)
