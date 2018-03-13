@@ -12,6 +12,7 @@ export default function({
 }) {
   return function() {
     return {
+      type: 'iso-triangle',
       vertices: [
          0.0,  h/2,  0.0,
         -w/2, -h/2,  0.0,
