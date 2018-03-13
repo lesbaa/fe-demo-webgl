@@ -424,18 +424,20 @@ export default class {
         0,
         0
       )
-      // debugger
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, object3D.textureCoordBuffer)
-      this.gl.enableVertexAttribArray(this.shader.attributes['aTextureCoord'].location)
-      // debugger
-      this.gl.vertexAttribPointer(
-        this.shader.attributes['aTextureCoord'].location,
-        object3D.tCols,
-        this.gl.FLOAT,
-        false,
-        0,
-        0
-      )
+      if (object3D.type !== 'points') {
+        // debugger
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, object3D.textureCoordBuffer)
+        this.gl.enableVertexAttribArray(this.shader.attributes['aTextureCoord'].location)
+        // debugger
+        this.gl.vertexAttribPointer(
+          this.shader.attributes['aTextureCoord'].location,
+          object3D.tCols,
+          this.gl.FLOAT,
+          false,
+          0,
+          0
+        )
+      }
       // debugger
       this.setMatrixUniforms()
       // debugger

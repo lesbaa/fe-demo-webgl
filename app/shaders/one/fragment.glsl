@@ -14,12 +14,12 @@ vec4 interpolate4f(vec4 a,vec4 b, float p) {
 
 void main(void) {
 
-  vec2 pc = (gl_PointCoord - 0.5) * 2.0;
+  vec2 pc = (gl_PointCoord - 0.1) * 5.0;
 
   float dist = (1.0 - sqrt(pc.x * pc.x + pc.y * pc.y));
   vec4 color = interpolate4f(begin, end, dist);
 
-  gl_FragColor = vec4(dist, dist, dist, dist) * color;
+  gl_FragColor = vec4(1.0, dist, 1.0, dist) * color;
 
 }
 

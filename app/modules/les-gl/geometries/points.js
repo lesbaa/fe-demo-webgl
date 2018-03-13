@@ -9,10 +9,12 @@ export default function({
   texture = null,
 }) {
   return function() {
-    console.log(points.length / 3)
+    const vertices = points.reduce((acc, el) => {
+      return acc.concat(el)
+    }, [])
     return {
       type: 'points',
-      vertices: points,
+      vertices,
       textureMap: [
         1.0,  1.0,
       ],

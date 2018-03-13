@@ -44,11 +44,14 @@ window.lesGl = new LesGl(c, demoShader, {
 
 const pointies = []
 
-for (let p = 0; p < 300; p++) {
-  pointies.push(Math.random() - 0.5)
+for (let p = 0; p < 900; p++) {
+  pointies.push([
+    Math.random() - 0.5,
+    Math.random() - 0.5,
+    Math.random() - 0.5,
+  ])
 }
 // https://codepen.io/AzazelN28/pen/zvXZQw
-console.log(pointies.length)
 const obj = lesGl.addObject(
   points({
     points: pointies,
@@ -74,6 +77,8 @@ document.body.appendChild(
   document.createElement('div').appendChild(stats.dom)
 )
 
+obj.position.z = -0.5
+
 // obj.rotation.z = 180
 
 // if (obj.type === 'cube') {
@@ -83,9 +88,10 @@ document.body.appendChild(
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
-  // obj.position.x += (Math.sin(now) - 1.0)
-  // obj.position.y += (Math.cos(now) - 1.0)
-  
+  obj.rotation.x += 0.2
+  obj.rotation.y += 0.1
+  obj.rotation.z += 0.1
+
   lesGl.shader.uniforms.globalTime.value += 0.01
   lesGl.render(now)
   stats.update()
