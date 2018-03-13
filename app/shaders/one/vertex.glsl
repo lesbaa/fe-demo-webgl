@@ -19,7 +19,8 @@ void main() {
         z + sin(globalTime),
         1.0
     );
-
+    // good video on vectors, matrices and transformations
+    // https://www.youtube.com/watch?v=vQ60rFwh2ig
     // gl_Position = uPMatrix * uMVMatrix * vec4(
     //     x,
     //     y,
