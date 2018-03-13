@@ -12,31 +12,31 @@ vec4 interpolate4f(vec4 a,vec4 b, float p) {
   return a + (b - a) * p;
 }
 
-void main(void) {
-
-  vec2 pc = (gl_PointCoord - 0.1) * 5.0;
-
-  float dist = (1.0 - sqrt(pc.x * pc.x + pc.y * pc.y));
-  vec4 color = interpolate4f(begin, end, dist);
-
-  gl_FragColor = vec4(1.0, dist, 1.0, dist) * color;
-
-}
-
 // void main(void) {
 
-//         float r = 1.0;
-//         float g = 1.0;
-//         float b = 1.0;
-//         float a = 1.0;
+//   vec2 pc = (gl_PointCoord - 0.1) * 5.0;
 
-//     gl_FragColor = vec4(
-//         r * 1.0 - (uv.z / 6.5),
-//         g * 1.0 - (uv.z / 6.5),
-//         b * 1.0 - (uv.z / 6.5),
-//         a
-//     );
+//   float dist = (1.0 - sqrt(pc.x * pc.x + pc.y * pc.y));
+//   vec4 color = interpolate4f(begin, end, dist);
+
+//   gl_FragColor = vec4(dist, dist, dist, dist) * color;
+
 // }
+
+void main(void) {
+
+        float r = 1.0;
+        float g = 1.0;
+        float b = 1.0;
+        float a = 1.0;
+
+    gl_FragColor = vec4(
+        r * 1.0 - (uv.z / 6.5),
+        g * 1.0 - (uv.z / 6.5),
+        b * 1.0 - (uv.z / 6.5),
+        a
+    );
+}
 
 // old scool screen
 // float random(vec2 c){

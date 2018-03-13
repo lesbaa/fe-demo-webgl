@@ -51,8 +51,17 @@ for (let p = 0; p < 900; p++) {
     Math.random() - 0.5,
   ])
 }
-// https://codepen.io/AzazelN28/pen/zvXZQw
-const obj = lesGl.addObject(
+const aCube = lesGl.addObject(
+  cube({
+    z: -5,
+    texture: lesGl.createTexture({
+      color: [150, 150, 150, 0],
+      type: 'basic',
+    }),
+  }),
+)
+
+const allThePoints = lesGl.addObject(
   points({
     points: pointies,
     texture: lesGl.createTexture({
@@ -77,7 +86,7 @@ document.body.appendChild(
   document.createElement('div').appendChild(stats.dom)
 )
 
-obj.position.z = -0.5
+allThePoints.position.z = -0.5
 
 // obj.rotation.z = 180
 
@@ -88,9 +97,10 @@ obj.position.z = -0.5
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
-  obj.rotation.x += 0.2
-  obj.rotation.y += 0.1
-  obj.rotation.z += 0.1
+  // aCube.rotation.x += 0.2
+  allThePoints.rotation.x += 0.2
+  allThePoints.rotation.y += 0.1
+  allThePoints.rotation.z += 0.1
 
   lesGl.shader.uniforms.globalTime.value += 0.01
   lesGl.render(now)

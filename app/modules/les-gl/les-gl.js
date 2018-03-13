@@ -414,8 +414,9 @@ export default class {
       }
 
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, object3D.positionBuffer)
+      debugger      
       this.gl.enableVertexAttribArray(this.shader.attributes['aVertexPosition'].location)
-      // debugger
+      debugger
       this.gl.vertexAttribPointer(
         this.shader.attributes['aVertexPosition'].location,
         object3D.cols,
@@ -424,11 +425,12 @@ export default class {
         0,
         0
       )
+      debugger
       if (object3D.type !== 'points') {
-        // debugger
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, object3D.textureCoordBuffer)
+        debugger
         this.gl.enableVertexAttribArray(this.shader.attributes['aTextureCoord'].location)
-        // debugger
+        debugger
         this.gl.vertexAttribPointer(
           this.shader.attributes['aTextureCoord'].location,
           object3D.tCols,
@@ -440,9 +442,9 @@ export default class {
       }
       // debugger
       this.setMatrixUniforms()
-      // debugger
+      debugger
       this.gl.drawArrays(object3D.glPrimitive, 0, object3D.rows, 0)
-      // debugger
+      debugger
       this.mvPopMatrix()
     }
     
