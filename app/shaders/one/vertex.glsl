@@ -13,20 +13,20 @@ void main() {
     float y = aVertexPosition.y;
     float z = aVertexPosition.z;
 
-    gl_Position = vec4(
-        x,
-        y,
-        z + sin(globalTime),
-        1.0
-    );
-    // good video on vectors, matrices and transformations
-    // https://www.youtube.com/watch?v=vQ60rFwh2ig
-    // gl_Position = uPMatrix * uMVMatrix * vec4(
+    // gl_Position = vec4(
     //     x,
     //     y,
     //     z + sin(globalTime),
     //     1.0
     // );
+    // good video on vectors, matrices and transformations
+    // https://www.youtube.com/watch?v=vQ60rFwh2ig
+    gl_Position = uPMatrix * uMVMatrix * vec4(
+        x,
+        y,
+        z,
+        1.0
+    );
 
     vTextureCoord = aTextureCoord;
     uv = gl_Position;
