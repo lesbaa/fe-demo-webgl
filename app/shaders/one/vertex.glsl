@@ -20,6 +20,12 @@ void main() {
         1.0
     );
 
+    if (gl_Position.w > 0.0) {
+      gl_PointSize = 4.0 / gl_Position.w;
+    } else {
+      gl_PointSize = 0.0;
+    }
+
     vTextureCoord = aTextureCoord;
     uv = gl_Position;
 }

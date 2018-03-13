@@ -5,23 +5,22 @@ uniform vec2 windowDims;
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
 
-void main(void) {
-  vec4 texColor = texture2D(
-    uSampler,
-    vTextureCoord
-  );
-  
-  float r = texColor.r;
-  float g = texColor.g;
-  float b = texColor.b;
-  float a = texColor.a;
+const vec4 begin = vec4(0.1, 0.75, 1.0, 1.0);
+const vec4 end = vec4(1.0, 1.0, 1.0, 1.0);
 
-  gl_FragColor = vec4(
-    r,
-    g,
-    b,
-    a
-  );
+vec4 interpolate4f(vec4 a,vec4 b, float p) {
+  return a + (b - a) * p;
+}
+
+void main(void) {
+
+  vec2 pc = (gl_PointCoord - 0.5) * 2.0;
+
+  float dist = (1.0 - sqrt(pc.x * pc.x + pc.y * pc.y));
+  vec4 color = interpolate4f(begin, end, dist);
+
+  gl_FragColor = vec4(dist, dist, dist, dist) * color;
+
 }
 
 // void main(void) {

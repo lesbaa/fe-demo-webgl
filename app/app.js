@@ -32,6 +32,7 @@ import {
   rect,
   isoscelesTriangle,
   cube,
+  points,
 } from './modules/les-gl/geometries'
 
 const c = document.getElementById('c')
@@ -41,17 +42,19 @@ window.lesGl = new LesGl(c, demoShader, {
   clearColor: [0, 0, 0, 1.0],
 })
 
+const pointies = []
+
+for (let p = 0; p < 300; p++) {
+  pointies.push(Math.random() - 0.5)
+}
+// https://codepen.io/AzazelN28/pen/zvXZQw
+console.log(pointies.length)
 const obj = lesGl.addObject(
-  cube({
-    x: 0.0,
-    y: 0.0,
-    z: -3.0,
-    w: 1.0,
-    h: 1.0,
-    d: 1.0,
+  points({
+    points: pointies,
     texture: lesGl.createTexture({
-      url: './assets/doge.jpeg',
-      type: 'img',
+      color: [150, 150, 150, 0],
+      type: 'basic',
     }),
   }),
 )
@@ -71,18 +74,17 @@ document.body.appendChild(
   document.createElement('div').appendChild(stats.dom)
 )
 
-obj.rotation.z = 180
+// obj.rotation.z = 180
 
-if (obj.type === 'cube') {
-  obj.rotation.z = 90
-}
+// if (obj.type === 'cube') {
+//   obj.rotation.z = 90
+// }
 
 const drawScene = (now) => {
   requestAnimationFrame(drawScene)
   now *= 0.001
-  obj.rotation.x += accelX
-  obj.rotation.y += accelY
-  obj.rotation.z += accelZ
+  // obj.position.x += (Math.sin(now) - 1.0)
+  // obj.position.y += (Math.cos(now) - 1.0)
   
   lesGl.shader.uniforms.globalTime.value += 0.01
   lesGl.render(now)
