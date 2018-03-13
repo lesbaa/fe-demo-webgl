@@ -11,6 +11,7 @@ export default function({
 }) {
   return function() {
     return {
+      type: 'rect',
       vertices: [
          w/2,  h/2, 0.0,
         -w/2,  h/2, 0.0,

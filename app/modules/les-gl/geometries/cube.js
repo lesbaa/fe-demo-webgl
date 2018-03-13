@@ -12,6 +12,7 @@ export default function({
 }) {
   return function() {
     return {
+      type: 'cube',
       vertices: [
          w/2,  h/2, -d/2,
         -w/2,  h/2, -d/2,

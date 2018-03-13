@@ -203,6 +203,7 @@ export default class {
       texture,
       tRows,
       tCols,
+      type,
       glPrimitive = this.gl.TRIANGLES,
     } = obj3D.bind(this)()
     const positionBuffer = this.gl.createBuffer()
@@ -233,6 +234,7 @@ export default class {
       position,
       rotation,
       glPrimitive,
+      type,
     }
     this.objects.push(newObj)
     return newObj

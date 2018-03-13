@@ -1,6 +1,7 @@
 precision highp float;
 varying vec4 uv;
 uniform float globalTime;
+uniform vec2 windowDims;
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
 
