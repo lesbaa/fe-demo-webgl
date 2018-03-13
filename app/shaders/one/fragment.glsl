@@ -16,9 +16,9 @@ void main(void) {
   float a = texColor.a;
 
   gl_FragColor = vec4(
-    r * 1.0,
-    g * 1.0,
-    b * 1.0,
+    r,
+    g,
+    b,
     a
   );
 }
@@ -43,11 +43,11 @@ void main(void) {
 //   return fract(sin(dot( c.xy, vec2(12.9898,78.233))) * 43758.5453);
 // }
 // void main() {
-//   float texPositionX = v_textcoord.x;
-//   float texPositionY = v_textcoord.y;
+//   float texPositionX = vTextureCoord.x;
+//   float texPositionY = vTextureCoord.y;
 
 //   vec2 texPosition = vec2(texPositionX, texPositionY);
-//   vec4 texturePixel = texture2D(u_image, texPosition);
+//   vec4 texturePixel = texture2D(uSampler, texPosition);
 
 //   float rndm = random( vec2(texPositionX + globalTime, texPositionY + globalTime) ) / 4.0;
 
@@ -85,7 +85,7 @@ void main(void) {
 
 // black and white
 // void main() {
-//   vec4 texturePixel = texture2D(u_image, v_textcoord.xy);
+//   vec4 texturePixel = texture2D(uSampler, vTextureCoord.xy);
 //   float r = texturePixel.x;
 //   float g = texturePixel.x;
 //   float b = texturePixel.x;
@@ -100,7 +100,7 @@ void main(void) {
 
 // posterise filter
 // void main() {
-//   vec4 texturePixel = texture2D(u_image, v_textcoord.xy);
+//   vec4 texturePixel = texture2D(uSampler, vTextureCoord.xy);
 //   float r = texturePixel.x > 0.5 ? 1.0 : 0.0;
 //   float g = texturePixel.y > 0.5 ? 1.0 : 0.0;
 //   float b = texturePixel.z > 0.5 ? 1.0 : 0.0;
