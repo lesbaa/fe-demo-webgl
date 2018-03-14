@@ -13,11 +13,18 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
       margin: 0;
       padding: 0;
       background-image: linear-gradient(45deg,rgb(13, 201, 144), rgb(16, 184, 235));
+      color: rgb(2, 143, 199);
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     }
-    canvas {
+    a {
+      color: rgb(2, 143, 199);
+      text-decoration: none
+    }
+    canvas, iframe {
       display: block;
       position: absolute;
       width: 100vw;
@@ -27,6 +34,28 @@
   </style>
 </head>
 <body>
-  <canvas id="c"></canvas>
+    <h2>gpgpu</h2>
+    <a href="https://threejs.org/examples/webgl_gpgpu_water.html" target="_blank">fluid</a>
+    <a href="https://threejs.org/examples/webgl_gpgpu_birds.html" target="_blank">birds</a>
+    <a href="https://paveldogreat.github.io/WebGL-Fluid-Simulation/" target="_blank">fluid sim</a>
+    <a href="http://madebyevan.com/webgl-water/" target="_blank">fluid sim and raytracing</a>
+    
+    <h2>why the platform is awesome</h2>
+    <a href="https://avseoul.net/particleEqualizer/" target="_blank">with web audio api</a>
+    <a href="https://wizgrav.github.io/clubber/index.html" target="_blank">get the glowsticks, more web audio api</a>
+    <a href="http://radio.garden/live/" target="_blank">radio garden</a>
+    <br />
+    <h2>all these apis just sitting in the browser ready to use:</h2>
+    <ul>
+      <li>ws, push etc (shellshock.io)</li>
+      <li>web audio : synthesis and analysis </li>
+      <li>web midi: connectivity</li>
+      <li>web VR (aframe)</li>
+      <li>web AR</li>
+      <li>device orientation APIs</li>
+      <li>WASM</li>
+      <li>media devices: camera</li>
+      <li>web bluetooth (coming)</li>
+    </ul>
 </body>
 </html>
