@@ -67,9 +67,7 @@ lightTwo.position.set(-5, -5, -5)
 scene.add(lightTwo)
 
 const radius = 1
-
 const boxGeom = new BoxGeometry(radius, radius, radius)
-const sphereGeom = new SphereGeometry(radius, 10, 10)
 const groundGeom = new PlaneGeometry(1000, 1000, 1000, 10, 10)
 
 const ground = new Mesh(
@@ -102,27 +100,30 @@ let bodies = []
 let objects = []
 
 const addObject = (i) => {
-  const isOdd = i % 2 === 0
+  const nr = (~~(Math.random() * 3) + 1) * radius
+  
+  const sphereGeom = new SphereGeometry(nr, 10, 10)
   
   const object = new Mesh(
-    isOdd ? sphereGeom : boxGeom,
+    sphereGeom,
     shaderMaterial
   )
-  
-  const rndmZ = Math.random()
-  const rndmX = Math.random()
+
+  const rndmZ = (Math.random() * 30) - 15
+  const rndmX = (Math.random() * 30) - 15
   
   scene.add(object)
-  object.position.set(rndmX, 10, rndmZ)
+  object.position.set(rndmX, 50, rndmZ)
+  
 
   const options = {
-    type: isOdd ? 'sphere' :'box',
+    type: 'sphere',
     size:[
-      radius,
-      radius,
-      radius,
+      nr,
+      nr,
+      nr,
     ],
-    pos:[rndmX, 10, rndmZ],
+    pos:[rndmX, 50, rndmZ],
     density:1,
     move:true
   }
@@ -133,12 +134,16 @@ const addObject = (i) => {
   objects.push(object)
 }
 
+window.s = scene
+window.o = objects
+window.b = bodies
+
 let t = 1
 
 const loop = (time) => {
   requestAnimationFrame(loop)
-  if (~~time % 3 === 0) {
-    addObject(~~(3 * Math.random()))
+  if (~~time % 2 === 0) {
+    addObject(~~(1 * Math.random()))
   }
   world.step(t)
   for (let i = 0; i < objects.length; i++) {
@@ -146,8 +151,10 @@ const loop = (time) => {
     const body = bodies[i]
     if (body.getPosition().y < -5) {
       const index = bodies.indexOf(body)
+      const sceneIndex = scene.children.indexOf(objects[i])
       bodies.splice(index, 1)
       objects.splice(index, 1)
+      scene.children.splice(sceneIndex, 1)
     } else {
       child.position.copy( body.getPosition() )
       child.quaternion.copy( body.getQuaternion() )
