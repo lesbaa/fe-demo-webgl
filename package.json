@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "dev": "webpack-dev-server --https"
+    "dev": "webpack-dev-server"
   },
   "author": "",
   "license": "ISC",
@@ -33,6 +33,7 @@
   "dependencies": {
     "@tweenjs/tween.js": "^17.1.1",
     "babel-eslint": "^8.1.2",
+    "jsartoolkit5": "0.0.4",
     "oimo": "1.0.9",
     "three": "^0.89.0",
     "webgl-debug": "^2.0.0"

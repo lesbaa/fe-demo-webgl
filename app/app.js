@@ -1,3 +1,9 @@
+/* global 
+NyARRgbRaster_Canvas2D
+FLARParam
+FLARMultiIdMarkerDetector
+NyARTransMatResult
+*/
 import * as THREE from 'three'
 import './modules/three-add-ons'
 import lesCustomShader from './shaders/les-custom'
@@ -27,19 +33,20 @@ const {
   Object3D,
 } = THREE
 
-import {
-  ARCameraParam,
-  ARController,
-} from 'jsartoolkit5'
+import copyMarkerMatrix from './modules/copy-marker-matrix'
 
-console.log('wat')
+Matrix4.prototype.setFromArray = function(m) {
+  return this.set(
+    m[0], m[4], m[8], m[12],
+    m[1], m[5], m[9], m[13],
+    m[2], m[6], m[10], m[14],
+    m[3], m[7], m[11], m[15]
+  )
+}
 
-const USE_SHADER = false
-const DEBUG = false
+const DETECTION_THRESHOLD = 75
 
 document.body.addEventListener('click', () => loop())
-
-const arShaderMaterial = new ShaderMaterial(arShader)
 
 const video = document.getElementById('v')
 
@@ -81,45 +88,7 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
 
-var markerRoot = new Object3D()
-
-markerRoot.wasVisible = false
-markerRoot.markerMatrix = new Float64Array(12)
-markerRoot.matrixAutoUpdate = false
-camera.matrixAutoUpdate = false
-
-const cube = new Mesh(
-  new BoxGeometry(1, 1, 1),
-  new MeshNormalMaterial()
-)
-
-let arController = null
-
-markerRoot.add(cube)
-scene.add(markerRoot)
-
-const cameraParam = new ARCameraParam()
-cameraParam.onload = cameraParam.onload = function() {
-  arController = new ARController(
-    640,
-    480,
-    cameraParam
-  )
-  arController.loadMarker('assets/patt.hiro')
-  
-  arController.debugSetup()
-
-  const camera_mat = arController.getCameraMatrix()
-  if (USE_SHADER) {
-    arShaderMaterial.uniforms.cameraMatrix.value.set(camera_mat)
-  } else {
-    camera.projectionMatrix.set(camera_mat)
-  }
-}
-
-cameraParam.load('assets/camera_para.dat')
-
-// const shaderMaterial = new ShaderMaterial(lesCustomShader)
+const shaderMaterial = new ShaderMaterial(lesCustomShader)
 
 const light = new PointLight( 0x44ddcc, 1.00)
 light.position.set(5, 5, 5)
@@ -130,8 +99,7 @@ lightTwo.position.set(-5, -5, -5)
 scene.add(lightTwo)
 
 const radius = 1
-
-// // physics stuff
+// physics stuff
 // const world = new World({ 
 //   timestep: 1 / 60,
 //   iterations: 8, 
@@ -148,51 +116,103 @@ let bodies = []
 let objects = []
 
 
+
+const rasterCanvas = document.createElement('canvas') // canvas to draw our video on
+rasterCanvas.width = window.innerWidth
+rasterCanvas.height = window.innerHeight
+
+const ctx = rasterCanvas.getContext('2d')
+// Create a RGB raster object for the 2D canvas.
+// JSARToolKit uses raster objects to read image data.
+// Note that you need to set canvas.changed = true on every frame.
+const raster = new NyARRgbRaster_Canvas2D(rasterCanvas)
+
+// FLARParam is the thing used by FLARToolKit to set camera parameters.
+// Here we create a FLARParam for images with window.innerWidthxwindow.innerHeight pixel dimensions.
+const param = new FLARParam(window.innerWidth, window.innerHeight)
+
+// The FLARMultiIdMarkerDetector is the actual detection engine for marker detection.
+// It detects multiple ID markers. ID markers are special markers that encode a number.
+const detector = new FLARMultiIdMarkerDetector(param, 120)
+
+// For tracking video set continue mode to true. In continue mode, the detector
+// tracks markers across multiple frames.
+detector.setContinueMode(true)
+
+// Copy the camera perspective matrix from the FLARParam to the WebGL library camera matrix.
+// The second and third parameters determine the zNear and zFar planes for the perspective matrix.
+param.copyCameraMatrix(camera.matrix, 10, 10000)
+
 window.s = scene
 window.o = objects
 window.b = bodies
 
+let t = 0
+
+var markerRoot = new Object3D()
+markerRoot.matrixAutoUpdate = false
+
+// Add the marker models and suchlike into your marker root object.
+var cube = new THREE.Mesh(
+  new THREE.CubeGeometry(100,100,100),
+  new THREE.MeshBasicMaterial({color: 0xff00ff})
+)
+
+cube.position.z = -50
+markerRoot.add(cube)
+scene.add(markerRoot)
+
+const tmp = new Float32Array(16)
+
+param.copyCameraMatrix(tmp, 10, 10000)
+camera.projectionMatrix.setFromArray(tmp)
+
+
 const loop = (time) => {
   requestAnimationFrame(loop)
-  if (!arController) return
-  arController.detectMarker(video) // this will need
-  const markerNum = arController.getMarkerNum()
-  if (markerNum > 0) {
-    if (markerRoot.visible) {
-      arController.getTransMatSquareCont(
-        0,
-        1,
-        markerRoot.markerMatrix,
-        markerRoot.markerMatrix
-      )
-    } else {
-      arController.getTransMatSquare(
-        0,
-        1,
-        markerRoot.markerMatrix
-      )
-      markerRoot.visible = true
-      if (USE_SHADER) {
-        arController.transMatToGLMat(
-          markerRoot.markerMatrix,arShaderMaterial.uniforms.transformationMatrix.value.elements
-        )
-      } else {
-        arController.transMatToGLMat(
-          markerRoot.markerMatrix,
-          markerRoot.matrix.elements
-        )
-      }
-    } 
-  } else {
-    markerRoot.visible = false
-  }
-  if (DEBUG) arController.debugDraw()
+  // Draw the video frame to the raster canvas, scaled to window.innerWidthxwindow.innerHeight.
+  ctx.drawImage(video, 0, 0, rasterCanvas.width, rasterCanvas.height)
 
-  // Render the scene.
-  renderer.autoClear = false
-  renderer.clear()
-  renderer.render(scene, camera)
+  // Tell the raster object that the underlying canvas has changed.
+  rasterCanvas.changed = true
+
+  // Do marker detection by using the detector object on the raster object.
+  // The threshold parameter determines the threshold value
+  // for turning the video frame into a 1-bit black-and-white image.
+  //
+  const markerCount = detector.detectMarkerLite(raster, DETECTION_THRESHOLD)
+  const resultMat = new NyARTransMatResult()
+
+  const markers = {}
+
+  if (markerCount) console.log('marker!')
+  for (let idx = 0; idx < markerCount; idx++) {
+    // Get the ID marker data for the current marker.
+    // ID markers are special kind of markers that encode a number.
+    // The bytes for the number are in the ID marker data.
+    const id = detector.getIdMarkerData(idx)
+    
+    // Read bytes from the id packet.
+    let currId = -1
+    // This code handles only 32-bit numbers or shorter.
+    if (id.packetLength <= 4) {
+      currId = 0
+      for (let i = 0; i < id.packetLength; i++) {
+        currId = (currId << 8) | id.getPacketData(i)
+      }
+    }
   
+    // If this is a new id, let's start tracking it.
+    if (markers[currId] == null) {
+      markers[currId] = {}
+    }
+    // Get the transformation matrix for the detected marker.
+    detector.getTransformMatrix(idx, resultMat)
+    copyMarkerMatrix(resultMat, tmp)
+    // Copy the result matrix into our marker tracker object.
+    markerRoot.matrix.setFromArray(tmp)
+  }
+
   // if (~~time % 5 === 0) {
   //   addObject(~~(1 * Math.random()))
   // }
@@ -213,6 +233,10 @@ const loop = (time) => {
   // }
 
   // shaderMaterial.uniforms.tLes.value += 0.
+
+  renderer.autoClear = false
+  renderer.clear()
+  renderer.render(scene, camera)
 
 }
 
