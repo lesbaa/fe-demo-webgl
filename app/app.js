@@ -34,7 +34,7 @@ import {
 
 console.log('wat')
 
-const USE_SHADER = true
+const USE_SHADER = false
 const DEBUG = false
 
 document.body.addEventListener('click', () => loop())
@@ -60,8 +60,8 @@ function getMedia(devices) {
   const constraints = {
     audio: false,
     video: {
-      width: {min: 1280},
-      height: {min: 720},
+      width: 640,
+      height: 480,
       deviceId: { exact: deviceId },
     },
   }
@@ -100,16 +100,16 @@ scene.add(markerRoot)
 
 const cameraParam = new ARCameraParam()
 cameraParam.onload = cameraParam.onload = function() {
-
   arController = new ARController(
-    undefined,
-    undefined,
+    640,
+    480,
     cameraParam
   )
-  // arController.debugSetup()
+  arController.loadMarker('assets/patt.hiro')
+  
+  arController.debugSetup()
 
   const camera_mat = arController.getCameraMatrix()
-
   if (USE_SHADER) {
     arShaderMaterial.uniforms.cameraMatrix.value.set(camera_mat)
   } else {
@@ -117,7 +117,7 @@ cameraParam.onload = cameraParam.onload = function() {
   }
 }
 
-// cameraParam.load('assets/camera_para.dat')
+cameraParam.load('assets/camera_para.dat')
 
 // const shaderMaterial = new ShaderMaterial(lesCustomShader)
 
@@ -130,7 +130,6 @@ lightTwo.position.set(-5, -5, -5)
 scene.add(lightTwo)
 
 const radius = 1
-
 
 // // physics stuff
 // const world = new World({ 
@@ -153,12 +152,9 @@ window.s = scene
 window.o = objects
 window.b = bodies
 
-let t = 1
-
 const loop = (time) => {
   requestAnimationFrame(loop)
   if (!arController) return
-  
   arController.detectMarker(video) // this will need
   const markerNum = arController.getMarkerNum()
   if (markerNum > 0) {
@@ -190,8 +186,7 @@ const loop = (time) => {
   } else {
     markerRoot.visible = false
   }
-  
-  // if (DEBUG) arController.debugDraw()
+  if (DEBUG) arController.debugDraw()
 
   // Render the scene.
   renderer.autoClear = false
@@ -219,9 +214,9 @@ const loop = (time) => {
 
   // shaderMaterial.uniforms.tLes.value += 0.
 
-  renderer.render( scene, camera )
 }
 
+loop()
 // renderer.render( scene, camera )
 
 function addObject () {
