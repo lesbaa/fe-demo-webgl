@@ -23,6 +23,7 @@ module.exports = {
   devServer: {
     contentBase: './dist',
     port: 1234,
+    host: '10.80.7.127',
   },
   module: {
     rules: [

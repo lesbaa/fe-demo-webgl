@@ -30,31 +30,51 @@ const {
 import {
   ARCameraParam,
   ARController,
-  artoolkit,
 } from 'jsartoolkit5'
 
+console.log('wat')
+
 const USE_SHADER = true
+const DEBUG = false
+
+document.body.addEventListener('click', () => loop())
 
 const arShaderMaterial = new ShaderMaterial(arShader)
-console.log(arShaderMaterial)
-const video = document.querySelector('video')
 
-const constraints = { audio: true, video: { width: 1280, height: 720 } }
+const video = document.getElementById('v')
 
-navigator.mediaDevices.getUserMedia(constraints)
-  .then(function(mediaStream) {
+navigator.mediaDevices.enumerateDevices()
+  .then(getMedia)
+  .then((mediaStream) => {
     video.srcObject = mediaStream
-    video.onloadedmetadata = function(e) {
+    video.addEventListener('canplay', () => {
       video.play()
-    }
+    })
   })
+  .catch(e => console.log(e, video.readyState))
 
+function getMedia(devices) {
+  const [ deviceId ] = devices
+    .filter(d => (d.label.includes('back')) )
+    .map(d => d.deviceId )
+  const constraints = {
+    audio: false,
+    video: {
+      width: 640,
+      height: 480,
+      deviceId: { exact: deviceId },
+    },
+  }
+  return navigator.mediaDevices.getUserMedia(constraints)
+
+}
 const canvas = document.getElementById('c')
 const scene = new Scene()
 const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 
 const renderer = new WebGLRenderer({
   // preserveDrawingBuffer: true,
+  alpha: true,
   canvas,
   antialias: true,
 })
@@ -82,7 +102,7 @@ const cameraParam = new ARCameraParam()
 cameraParam.onload = cameraParam.onload = function() {
 
   arController = new ARController(320, 240, cameraParam)
-  arController.debugSetup()
+  // arController.debugSetup()
 
   const camera_mat = arController.getCameraMatrix()
 
@@ -91,7 +111,6 @@ cameraParam.onload = cameraParam.onload = function() {
   } else {
     camera.projectionMatrix.set(camera_mat)
   }
-
 }
 
 cameraParam.load('assets/camera_para.dat')
@@ -168,7 +187,7 @@ const loop = (time) => {
     markerRoot.visible = false
   }
   
-  arController.debugDraw()
+  // if (DEBUG) arController.debugDraw()
 
   // Render the scene.
   renderer.autoClear = false
@@ -194,20 +213,12 @@ const loop = (time) => {
   //   }
   // }
 
-  // shaderMaterial.uniforms.tLes.value += 0.1
-  camera.lookAt(
-    new Vector3(
-      0,
-      0,
-      0
-    )
-  )
+  // shaderMaterial.uniforms.tLes.value += 0.
 
   renderer.render( scene, camera )
 }
 
 // renderer.render( scene, camera )
-loop()
 
 function addObject () {
   const nr = (~~(Math.random() * 3) + 1) * radius
