@@ -44,6 +44,8 @@ Matrix4.prototype.setFromArray = function(m) {
   )
 }
 
+// https://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/#toc-setup
+
 const DETECTION_THRESHOLD = 75
 
 document.body.addEventListener('click', () => loop())
