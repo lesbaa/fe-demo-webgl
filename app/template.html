@@ -9,7 +9,7 @@
     body {
       width: 100vw;
       height: 100vh;
-      overflow: scroll;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -20,14 +20,15 @@
     canvas, video {
       display: block;
       position: absolute;
+      top: 0;
       width: 100vw;
       height: 100vh;
-      background: #444;
+      background: transparent;
     }
   </style>
 </head>
 <body>
-  <canvas id="c"></canvas>
   <video id="v"></video>
+  <canvas id="c"></canvas>
 </body>
 </html>

@@ -60,14 +60,12 @@ function getMedia(devices) {
   const constraints = {
     audio: false,
     video: {
-      width: 640,
-      height: 480,
       deviceId: { exact: deviceId },
     },
   }
   return navigator.mediaDevices.getUserMedia(constraints)
-
 }
+
 const canvas = document.getElementById('c')
 const scene = new Scene()
 const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
@@ -101,7 +99,11 @@ scene.add(markerRoot)
 const cameraParam = new ARCameraParam()
 cameraParam.onload = cameraParam.onload = function() {
 
-  arController = new ARController(320, 240, cameraParam)
+  arController = new ARController(
+    undefined,
+    undefined,
+    cameraParam
+  )
   // arController.debugSetup()
 
   const camera_mat = arController.getCameraMatrix()
@@ -113,7 +115,7 @@ cameraParam.onload = cameraParam.onload = function() {
   }
 }
 
-cameraParam.load('assets/camera_para.dat')
+// cameraParam.load('assets/camera_para.dat')
 
 // const shaderMaterial = new ShaderMaterial(lesCustomShader)
 
