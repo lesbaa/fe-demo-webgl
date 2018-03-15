@@ -60,6 +60,8 @@ function getMedia(devices) {
   const constraints = {
     audio: false,
     video: {
+      width: {min: 1280},
+      height: {min: 720},
       deviceId: { exact: deviceId },
     },
   }
