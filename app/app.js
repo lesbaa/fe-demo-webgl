@@ -1,10 +1,7 @@
 import * as THREE from 'three'
 import './modules/three-add-ons'
-import dotScreenShader from './shaders/dot-screen'
-import pixelateShader from './shaders/pixelate'
-import rgbShiftShader from './shaders/rgb-shift'
-import tvScreenShader from './shaders/tv-screen'
 import lesCustomShader from './shaders/les-custom'
+import arShader from './shaders/ar-shader'
 
 import {
   World,
@@ -16,32 +13,45 @@ const {
   WebGLRenderer,
   BoxGeometry,
   Mesh,
-  AmbientLight,
-  AdditiveBlending,
-  GridHelper,
-  SpotLight,
   SphereGeometry,
   TextureLoader,
-  SphericalReflectionMapping,
   DoubleSide,
-  MeshNormalMaterial,
   ShaderMaterial,
   MeshLambertMaterial,
+  MeshNormalMaterial,
   PlaneGeometry,
   Vector3,
-  EffectComposer,
   OrbitControls,
-  ShaderPass,
-  RenderPass,
   PointLight,
+  Matrix4,
+  Object3D,
 } = THREE
 
-// https://github.com/mrdoob/three.js/blob/master/examples/webgl_postprocessing.html
+import {
+  ARCameraParam,
+  ARController,
+  artoolkit,
+} from 'jsartoolkit5'
+
+const USE_SHADER = true
+
+const arShaderMaterial = new ShaderMaterial(arShader)
+console.log(arShaderMaterial)
+const video = document.querySelector('video')
+
+const constraints = { audio: true, video: { width: 1280, height: 720 } }
+
+navigator.mediaDevices.getUserMedia(constraints)
+  .then(function(mediaStream) {
+    video.srcObject = mediaStream
+    video.onloadedmetadata = function(e) {
+      video.play()
+    }
+  })
 
 const canvas = document.getElementById('c')
 const scene = new Scene()
 const camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
-const textureLoader = new TextureLoader()
 
 const renderer = new WebGLRenderer({
   // preserveDrawingBuffer: true,
@@ -51,12 +61,42 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
 
-const normalMaterial = new MeshLambertMaterial({
-  side: DoubleSide,
-  color: 0x66dddd,
-})
+var markerRoot = new Object3D()
 
-const shaderMaterial = new ShaderMaterial(lesCustomShader)
+markerRoot.wasVisible = false
+markerRoot.markerMatrix = new Float64Array(12)
+markerRoot.matrixAutoUpdate = false
+camera.matrixAutoUpdate = false
+
+const cube = new Mesh(
+  new BoxGeometry(1, 1, 1),
+  new MeshNormalMaterial()
+)
+
+let arController = null
+
+markerRoot.add(cube)
+scene.add(markerRoot)
+
+const cameraParam = new ARCameraParam()
+cameraParam.onload = cameraParam.onload = function() {
+
+  arController = new ARController(320, 240, cameraParam)
+  arController.debugSetup()
+
+  const camera_mat = arController.getCameraMatrix()
+
+  if (USE_SHADER) {
+    arShaderMaterial.uniforms.cameraMatrix.value.set(camera_mat)
+  } else {
+    camera.projectionMatrix.set(camera_mat)
+  }
+
+}
+
+cameraParam.load('assets/camera_para.dat')
+
+// const shaderMaterial = new ShaderMaterial(lesCustomShader)
 
 const light = new PointLight( 0x44ddcc, 1.00)
 light.position.set(5, 5, 5)
@@ -67,39 +107,109 @@ lightTwo.position.set(-5, -5, -5)
 scene.add(lightTwo)
 
 const radius = 1
-const boxGeom = new BoxGeometry(radius, radius, radius)
-const groundGeom = new PlaneGeometry(1000, 1000, 1000, 10, 10)
 
-const ground = new Mesh(
-  groundGeom,
-  normalMaterial
-)
-scene.add(ground)
 
-ground.rotation.x = 1.5708
-ground.position.y = -1
-camera.position.z = 15
-camera.position.y = 1.7
+// // physics stuff
+// const world = new World({ 
+//   timestep: 1 / 60,
+//   iterations: 8, 
+//   broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
+//   worldscale: 1, // scale full world 
+//   random: true,  // randomize sample
+//   info: false,   // calculate statistic or not
+//   gravity: [0, -9.8, 0] 
+// })
 
-const controls = new OrbitControls(camera, renderer.domElement)
-
-// physics stuff
-const world = new World({ 
-  timestep: 1 / 60,
-  iterations: 8, 
-  broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
-  worldscale: 1, // scale full world 
-  random: true,  // randomize sample
-  info: false,   // calculate statistic or not
-  gravity: [0, -9.8, 0] 
-})
-
-const groundBody = world.add({size:[50, 10, 50], pos:[0, -5.65, 0], density:1 })
+// const groundBody = world.add({size:[100, 10, 100], pos:[0, -5.65, 0], density:1 })
 
 let bodies = []
 let objects = []
 
-const addObject = (i) => {
+
+window.s = scene
+window.o = objects
+window.b = bodies
+
+let t = 1
+
+const loop = (time) => {
+  requestAnimationFrame(loop)
+  if (!arController) return
+  
+  arController.detectMarker(video) // this will need
+  const markerNum = arController.getMarkerNum()
+  if (markerNum > 0) {
+    if (markerRoot.visible) {
+      arController.getTransMatSquareCont(
+        0,
+        1,
+        markerRoot.markerMatrix,
+        markerRoot.markerMatrix
+      )
+    } else {
+      arController.getTransMatSquare(
+        0,
+        1,
+        markerRoot.markerMatrix
+      )
+      markerRoot.visible = true
+      if (USE_SHADER) {
+        arController.transMatToGLMat(
+          markerRoot.markerMatrix,arShaderMaterial.uniforms.transformationMatrix.value.elements
+        )
+      } else {
+        arController.transMatToGLMat(
+          markerRoot.markerMatrix,
+          markerRoot.matrix.elements
+        )
+      }
+    } 
+  } else {
+    markerRoot.visible = false
+  }
+  
+  arController.debugDraw()
+
+  // Render the scene.
+  renderer.autoClear = false
+  renderer.clear()
+  renderer.render(scene, camera)
+  
+  // if (~~time % 5 === 0) {
+  //   addObject(~~(1 * Math.random()))
+  // }
+  // world.step(t)
+  // for (let i = 0; i < objects.length; i++) {
+  //   const child = objects[i]
+  //   const body = bodies[i]
+  //   if (body.getPosition().x > 20 || body.getPosition().x < -20 || body.getPosition().z < -20 || body.getPosition().z > 20 ) {
+  //     const index = bodies.indexOf(body)
+  //     const sceneIndex = scene.children.indexOf(objects[i])
+  //     bodies.splice(index, 1)
+  //     objects.splice(index, 1)
+  //     scene.children.splice(sceneIndex, 1)
+  //   } else {
+  //     child.position.copy( body.getPosition() )
+  //     child.quaternion.copy( body.getQuaternion() )
+  //   }
+  // }
+
+  // shaderMaterial.uniforms.tLes.value += 0.1
+  camera.lookAt(
+    new Vector3(
+      0,
+      0,
+      0
+    )
+  )
+
+  renderer.render( scene, camera )
+}
+
+// renderer.render( scene, camera )
+loop()
+
+function addObject () {
   const nr = (~~(Math.random() * 3) + 1) * radius
   
   const sphereGeom = new SphereGeometry(nr, 10, 10)
@@ -111,10 +221,9 @@ const addObject = (i) => {
 
   const rndmZ = (Math.random() * 30) - 15
   const rndmX = (Math.random() * 30) - 15
-  
+
   scene.add(object)
   object.position.set(rndmX, 50, rndmZ)
-  
 
   const options = {
     type: 'sphere',
@@ -124,8 +233,8 @@ const addObject = (i) => {
       nr,
     ],
     pos:[rndmX, 50, rndmZ],
-    density:1,
-    move:true
+    density: 1,
+    move: true,
   }
 
   const sphereBody = world.add(options)
@@ -133,46 +242,3 @@ const addObject = (i) => {
   bodies.push(sphereBody)
   objects.push(object)
 }
-
-window.s = scene
-window.o = objects
-window.b = bodies
-
-let t = 1
-
-const loop = (time) => {
-  requestAnimationFrame(loop)
-  if (~~time % 2 === 0) {
-    addObject(~~(1 * Math.random()))
-  }
-  world.step(t)
-  for (let i = 0; i < objects.length; i++) {
-    const child = objects[i]
-    const body = bodies[i]
-    if (body.getPosition().y < -5) {
-      const index = bodies.indexOf(body)
-      const sceneIndex = scene.children.indexOf(objects[i])
-      bodies.splice(index, 1)
-      objects.splice(index, 1)
-      scene.children.splice(sceneIndex, 1)
-    } else {
-      child.position.copy( body.getPosition() )
-      child.quaternion.copy( body.getQuaternion() )
-    }
-  }
-
-  shaderMaterial.uniforms.tLes.value += 0.1
-  camera.lookAt(
-    new Vector3(
-      0,
-      0,
-      0
-    )
-  )
-
-  controls.update()
-  renderer.render( scene, camera )
-}
-
-// renderer.render( scene, camera )
-loop()
