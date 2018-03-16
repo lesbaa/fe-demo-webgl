@@ -5,8 +5,10 @@ FLARMultiIdMarkerDetector
 NyARTransMatResult
 */
 import * as THREE from 'three'
-import './modules/three-add-ons'
+// import './modules/three-add-ons'
+import copyMarkerMatrix from './modules/copy-marker-matrix'
 import lesCustomShader from './shaders/les-custom'
+
 import arShader from './shaders/ar-shader'
 
 import {
@@ -30,11 +32,12 @@ const {
   Matrix4,
   Object3D,
   AnimationMixer,
-  ColladaLoader,
   Clock,
 } = THREE
 
-import copyMarkerMatrix from './modules/copy-marker-matrix'
+import ColladaLoader from 'three-collada-loader-2'
+
+// console.log(ColladaLoader)
 
 Matrix4.prototype.setFromArray = function(m) {
   return this.set(
@@ -134,22 +137,24 @@ var markerRoot = new Object3D()
 markerRoot.matrixAutoUpdate = false
 
 const loader = new ColladaLoader()
-loader.load('./assets/stormtrooper/stormtrooper.dae', (collada) => {
+
+loader.load('assets/old_guy/old_guy.dae', (collada) => {
+  console.log(collada)
   const animations = collada.animations
   avatar = collada.scene
   mixer = new AnimationMixer(avatar)
   mixer.clipAction( animations[ 0 ] ).play()
-  scene.add(avatar)
+  markerRoot.add(avatar)
 })
+// debugger
 
-avatar.position.z = -50
-markerRoot.add(avatar)
 scene.add(markerRoot)
+
+const tmp = new Float32Array(16)
 
 param.copyCameraMatrix(tmp, 10, 10000)
 camera.projectionMatrix.setFromArray(tmp)
 
-const tmp = new Float32Array(16)
 const clock = new Clock()
 
 const loop = (time) => {
@@ -169,7 +174,7 @@ const loop = (time) => {
 
   const markers = {}
 
-  // if (markerCount) console.log('marker!')
+  if (markerCount) console.log('marker!')
   for (let idx = 0; idx < markerCount; idx++) {
     // Get the ID marker data for the current marker.
     // ID markers are special kind of markers that encode a number.
@@ -196,7 +201,9 @@ const loop = (time) => {
     // Copy the result matrix into our marker tracker object.
     markerRoot.matrix.setFromArray(tmp)
   }
-  
+  if (avatar && avatar.position && avatar.position.z !== -1) {
+    avatar.position.z = -50
+  }
   const delta = clock.getDelta()
   if (mixer !== undefined) {
     mixer.update(delta)
