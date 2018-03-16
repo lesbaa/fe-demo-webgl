@@ -101,25 +101,6 @@ const lightTwo = new PointLight( 0xdd3333, 1.00)
 lightTwo.position.set(-5, -5, -5)
 scene.add(lightTwo)
 
-const radius = 1
-// physics stuff
-// const world = new World({ 
-//   timestep: 1 / 60,
-//   iterations: 8, 
-//   broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
-//   worldscale: 1, // scale full world 
-//   random: true,  // randomize sample
-//   info: false,   // calculate statistic or not
-//   gravity: [0, -9.8, 0] 
-// })
-
-// const groundBody = world.add({size:[100, 10, 100], pos:[0, -5.65, 0], density:1 })
-
-let bodies = []
-let objects = []
-
-
-
 const rasterCanvas = document.createElement('canvas') // canvas to draw our video on
 rasterCanvas.width = window.innerWidth
 rasterCanvas.height = window.innerHeight
@@ -146,11 +127,6 @@ detector.setContinueMode(true)
 // The second and third parameters determine the zNear and zFar planes for the perspective matrix.
 param.copyCameraMatrix(camera.matrix, 10, 10000)
 
-window.s = scene
-window.o = objects
-window.b = bodies
-
-// let t = 0
 let mixer
 let avatar
 
@@ -166,13 +142,7 @@ loader.load('./assets/stormtrooper/stormtrooper.dae', (collada) => {
   scene.add(avatar)
 })
 
-// Add the marker models and suchlike into your marker root object.
-var cube = new THREE.Mesh(
-  new THREE.CubeGeometry(100,100,100),
-  new THREE.MeshBasicMaterial({color: 0xff00ff})
-)
-
-cube.position.z = -50
+avatar.position.z = -50
 markerRoot.add(avatar)
 scene.add(markerRoot)
 
@@ -232,27 +202,6 @@ const loop = (time) => {
     mixer.update(delta)
   }
 
-  // if (~~time % 5 === 0) {
-  //   addObject(~~(1 * Math.random()))
-  // }
-  // world.step(t)
-  // for (let i = 0; i < objects.length; i++) {
-  //   const child = objects[i]
-  //   const body = bodies[i]
-  //   if (body.getPosition().x > 20 || body.getPosition().x < -20 || body.getPosition().z < -20 || body.getPosition().z > 20 ) {
-  //     const index = bodies.indexOf(body)
-  //     const sceneIndex = scene.children.indexOf(objects[i])
-  //     bodies.splice(index, 1)
-  //     objects.splice(index, 1)
-  //     scene.children.splice(sceneIndex, 1)
-  //   } else {
-  //     child.position.copy( body.getPosition() )
-  //     child.quaternion.copy( body.getQuaternion() )
-  //   }
-  // }
-
-  // shaderMaterial.uniforms.tLes.value += 0.
-
   renderer.autoClear = false
   renderer.clear()
   renderer.render(scene, camera)
@@ -260,38 +209,3 @@ const loop = (time) => {
 }
 
 loop()
-// renderer.render( scene, camera )
-
-function addObject () {
-  const nr = (~~(Math.random() * 3) + 1) * radius
-  
-  const sphereGeom = new SphereGeometry(nr, 10, 10)
-  
-  const object = new Mesh(
-    sphereGeom,
-    shaderMaterial
-  )
-
-  const rndmZ = (Math.random() * 30) - 15
-  const rndmX = (Math.random() * 30) - 15
-
-  scene.add(object)
-  object.position.set(rndmX, 50, rndmZ)
-
-  const options = {
-    type: 'sphere',
-    size:[
-      nr,
-      nr,
-      nr,
-    ],
-    pos:[rndmX, 50, rndmZ],
-    density: 1,
-    move: true,
-  }
-
-  const sphereBody = world.add(options)
-
-  bodies.push(sphereBody)
-  objects.push(object)
-}
