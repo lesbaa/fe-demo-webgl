@@ -5,7 +5,7 @@ FLARMultiIdMarkerDetector
 NyARTransMatResult
 */
 import * as THREE from 'three'
-// import './modules/three-add-ons'
+import './modules/three-add-ons'
 import copyMarkerMatrix from './modules/copy-marker-matrix'
 import lesCustomShader from './shaders/les-custom'
 
@@ -32,25 +32,17 @@ const {
   Matrix4,
   Object3D,
   AnimationMixer,
+  AmbientLight,
   Clock,
 } = THREE
 
 import ColladaLoader from 'three-collada-loader-2'
-
 // console.log(ColladaLoader)
 
-Matrix4.prototype.setFromArray = function(m) {
-  return this.set(
-    m[0], m[4], m[8], m[12],
-    m[1], m[5], m[9], m[13],
-    m[2], m[6], m[10], m[14],
-    m[3], m[7], m[11], m[15]
-  )
-}
 
 // https://www.html5rocks.com/en/tutorials/webgl/jsartoolkit_webrtc/#toc-setup
 
-const DETECTION_THRESHOLD = 75
+const DETECTION_THRESHOLD = 100
 
 document.body.addEventListener('click', () => loop())
 
@@ -92,17 +84,20 @@ const renderer = new WebGLRenderer({
   antialias: true,
 })
 
+// renderer.setClearColor( 0x000000, 1 )
 renderer.setSize( canvas.offsetWidth, canvas.offsetHeight )
 
-const shaderMaterial = new ShaderMaterial(lesCustomShader)
-
-const light = new PointLight( 0x44ddcc, 1.00)
-light.position.set(5, 5, 5)
+const light = new PointLight( 0x44ddcc, 6.00)
+light.position.set(10, 10, 10)
 scene.add(light)
 
-const lightTwo = new PointLight( 0xdd3333, 1.00)
-lightTwo.position.set(-5, -5, -5)
+const lightTwo = new PointLight( 0xdd3333, 6.00)
+lightTwo.position.set(-10, 10, -10)
 scene.add(lightTwo)
+
+const ambient = new AmbientLight( 0x999999, 1.00)
+scene.add(ambient)
+
 
 const rasterCanvas = document.createElement('canvas') // canvas to draw our video on
 rasterCanvas.width = window.innerWidth
@@ -142,6 +137,11 @@ loader.load('assets/old_guy/old_guy.dae', (collada) => {
   console.log(collada)
   const animations = collada.animations
   avatar = collada.scene
+  avatar.rotation.x = -Math.PI / 2
+  avatar.scale.x = 1
+  avatar.scale.y = 1
+  avatar.scale.z = 1
+  console.log(avatar)
   mixer = new AnimationMixer(avatar)
   mixer.clipAction( animations[ 0 ] ).play()
   markerRoot.add(avatar)
@@ -149,7 +149,8 @@ loader.load('assets/old_guy/old_guy.dae', (collada) => {
 // debugger
 
 scene.add(markerRoot)
-
+// camera.position.z = 5
+// camera.position.y = 0
 const tmp = new Float32Array(16)
 
 param.copyCameraMatrix(tmp, 10, 10000)
@@ -200,10 +201,11 @@ const loop = (time) => {
     copyMarkerMatrix(resultMat, tmp)
     // Copy the result matrix into our marker tracker object.
     markerRoot.matrix.setFromArray(tmp)
+    markerRoot.position.x = 0
+    markerRoot.position.y = 0
+    markerRoot.position.z = 0
   }
-  if (avatar && avatar.position && avatar.position.z !== -1) {
-    avatar.position.z = -50
-  }
+
   const delta = clock.getDelta()
   if (mixer !== undefined) {
     mixer.update(delta)
