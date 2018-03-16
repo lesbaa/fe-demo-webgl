@@ -26,11 +26,12 @@ const {
   MeshLambertMaterial,
   MeshNormalMaterial,
   PlaneGeometry,
-  Vector3,
-  OrbitControls,
   PointLight,
   Matrix4,
   Object3D,
+  AnimationMixer,
+  ColladaLoader,
+  Clock,
 } = THREE
 
 import copyMarkerMatrix from './modules/copy-marker-matrix'
@@ -149,10 +150,21 @@ window.s = scene
 window.o = objects
 window.b = bodies
 
-let t = 0
+// let t = 0
+let mixer
+let avatar
 
 var markerRoot = new Object3D()
 markerRoot.matrixAutoUpdate = false
+
+const loader = new ColladaLoader()
+loader.load('./assets/stormtrooper/stormtrooper.dae', (collada) => {
+  const animations = collada.animations
+  avatar = collada.scene
+  mixer = new AnimationMixer(avatar)
+  mixer.clipAction( animations[ 0 ] ).play()
+  scene.add(avatar)
+})
 
 // Add the marker models and suchlike into your marker root object.
 var cube = new THREE.Mesh(
@@ -161,14 +173,14 @@ var cube = new THREE.Mesh(
 )
 
 cube.position.z = -50
-markerRoot.add(cube)
+markerRoot.add(avatar)
 scene.add(markerRoot)
-
-const tmp = new Float32Array(16)
 
 param.copyCameraMatrix(tmp, 10, 10000)
 camera.projectionMatrix.setFromArray(tmp)
 
+const tmp = new Float32Array(16)
+const clock = new Clock()
 
 const loop = (time) => {
   requestAnimationFrame(loop)
@@ -187,7 +199,7 @@ const loop = (time) => {
 
   const markers = {}
 
-  if (markerCount) console.log('marker!')
+  // if (markerCount) console.log('marker!')
   for (let idx = 0; idx < markerCount; idx++) {
     // Get the ID marker data for the current marker.
     // ID markers are special kind of markers that encode a number.
@@ -213,6 +225,11 @@ const loop = (time) => {
     copyMarkerMatrix(resultMat, tmp)
     // Copy the result matrix into our marker tracker object.
     markerRoot.matrix.setFromArray(tmp)
+  }
+  
+  const delta = clock.getDelta()
+  if (mixer !== undefined) {
+    mixer.update(delta)
   }
 
   // if (~~time % 5 === 0) {
